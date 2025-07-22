@@ -4,7 +4,6 @@ SET_PROP "vendor" "ro.apex.updatable" "true"
 echo "Enabling IncrementalFS"
 SET_PROP "vendor" "ro.incremental.enable" "yes"
 
-<<<<<<< HEAD
 echo "Enabling FS Verity"
 SET_PROP "vendor" "ro.apk_verity.mode" "2"
 
@@ -13,8 +12,6 @@ FROM="noatime,nosuid,nodev,noauto_da_alloc,discard,journal_checksum,data=ordered
 TO="noatime,nosuid,nodev,discard,usrquota,grpquota,fsync_mode=nobarrier,reserve_root=32768,resgid=5678"
 sed -i -e "${LINE}s/ext4/f2fs/g" -e "${LINE}s/$FROM/$TO/g" "$WORK_DIR/vendor/etc/fstab.exynos9820"
 
-=======
->>>>>>> parent of d6104bba (platform: squash revert encryption)
 echo "Disabling A2DP Offload"
 SET_PROP "system" persist.bluetooth.a2dp_offload.disabled "true"
 
