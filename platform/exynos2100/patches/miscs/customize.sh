@@ -8,6 +8,7 @@ SET_PROP "vendor" "debug.hwui.skia_atrace_enabled" "false"
 echo "Setting FUSE passthough"
 SET_PROP "vendor" "persist.sys.fuse.passthrough.enable" "true"
 
+<<<<<<< HEAD
 echo "Disabling encryption"
 # Encryption
 LINE=$(sed -n "/^\/dev\/block\/by-name\/userdata/=" "$WORK_DIR/vendor/etc/fstab.exynos2100")
@@ -45,3 +46,14 @@ if [[ "$TARGET_CODENAME" == "r9s" ]]; then
 else
     ADD_TO_WORK_DIR "b0sxxx" "system" "system/apex/com.android.btservices.apex" 0 0 644 "u:object_r:system_file:s0"
 fi 
+=======
+# Samsung ODE
+ENTRIES="
+ODE
+keydata
+keyrefuge
+"
+for e in $ENTRIES; do
+    sed -i "/${e}/d" "$WORK_DIR/vendor/etc/fstab.exynos2100"
+done
+>>>>>>> parent of d6104bba (platform: squash revert encryption)
