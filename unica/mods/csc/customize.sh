@@ -22,14 +22,11 @@ SET_CSC_FEATURE_CONFIG()
     return 0
 }
 
-<<<<<<< HEAD
 echo "Patching CSC model"
 SOURCE_MODEL=$(echo -n "$SOURCE_FIRMWARE" | cut -d "/" -f 1)
 TARGET_MODEL=$(echo -n "$TARGET_FIRMWARE" | cut -d "/" -f 1)
 find "$WORK_DIR/optics" -type f -exec sed -i "s/SAOMC_SM-S938B/SAOMC_${TARGET_MODEL}/g" {} +
 
-=======
->>>>>>> parent of 8bfc652c (unica: mods: csc: spoof cosmetic CSC model number)
 echo "Patching CSC Features"
 while read -r FILE; do
     # Decode XML
