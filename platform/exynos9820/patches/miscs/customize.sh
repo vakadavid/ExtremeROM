@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-=======
-echo "Disabling encryption"
-# Replace encryption with fscompress
-LINE=$(sed -n "/^\/dev\/block\/by-name\/userdata/=" "$WORK_DIR/vendor/etc/fstab.exynos9820")
-sed -i "${LINE}s/fileencryption=ice/fscompress/g" "$WORK_DIR/vendor/etc/fstab.exynos9820"
-
-# ODE
-sed -i -e "/ODE/d" -e "/keydata/d" -e "/keyrefuge/d" "$WORK_DIR/vendor/etc/fstab.exynos9820"
-
->>>>>>> second-repo/fifteen
 echo "Enabling updateable APEX images"
 SET_PROP "vendor" "ro.apex.updatable" "true"
 
@@ -42,6 +31,7 @@ SET_PROP "vendor" "ro.hwui.use_vulkan" "true"
 SET_PROP "vendor" "debug.hwui.use_hint_manager" "true"
 
 # Encryption
+echo "Enabling encryption"
 LINE="$(sed -n "/^\/dev\/block\/by-name\/userdata/=" "$WORK_DIR/vendor/etc/fstab.exynos9820")"
 
 echo "Setting /data to F2FS"
