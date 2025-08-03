@@ -39,8 +39,15 @@ echo "Enable Vulkan"
 SET_PROP "vendor" "ro.hwui.use_vulkan" "true"
 SET_PROP "vendor" "debug.hwui.use_hint_manager" "true"
 
+<<<<<<< HEAD
 # Encryption
 LINE="$(sed -n "/^\/dev\/block\/by-name\/userdata/=" "$WORK_DIR/vendor/etc/fstab.exynos990")"
+=======
+echo "Disabling encryption"
+# Replace encryption with fscompress
+LINE=$(sed -n "/^\/dev\/block\/by-name\/userdata/=" "$WORK_DIR/vendor/etc/fstab.exynos990")
+sed -i "${LINE}s/fileencryption=ice/fscompress/g" "$WORK_DIR/vendor/etc/fstab.exynos990"
+>>>>>>> second-repo/fifteen
 
 echo "Switching to FBE v2"
 FBE_V1="fileencryption=ice"

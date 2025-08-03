@@ -12,12 +12,6 @@ if [[ "$TARGET_CODENAME" != "r11s" ]]; then
     ADD_TO_WORK_DIR "$TARGET_FIRMWARE" "system" "system/priv-app/DevGPUDriver-EX2200/DevGPUDriver-EX2200.apk" 0 0 644 "u:object_r:system_file:s0"
 fi
 
-echo "Replacing Hotword"
-DELETE_FROM_WORK_DIR "product" "priv-app/HotwordEnrollmentOKGoogleEx4CORTEXM55"
-DELETE_FROM_WORK_DIR "product" "priv-app/HotwordEnrollmentXGoogleEx4CORTEXM55"
-ADD_TO_WORK_DIR "$TARGET_FIRMWARE" "product" "priv-app/HotwordEnrollmentOKGoogleEx4CORTEXM55/HotwordEnrollmentOKGoogleEx4CORTEXM55.apk" 0 0 644 "u:object_r:system_file:s0"
-ADD_TO_WORK_DIR "$TARGET_FIRMWARE" "product" "priv-app/HotwordEnrollmentXGoogleEx4CORTEXM55/HotwordEnrollmentXGoogleEx4CORTEXM55.apk" 0 0 644 "u:object_r:system_file:s0"
-
 if [[ "$TARGET_CODENAME" = "b0s" ]]; then
     echo "Adding SPen SEC Feature"
     ADD_TO_WORK_DIR "$TARGET_FIRMWARE" "system" "system/etc/permissions/com.sec.feature.spen_usp_level70.xml" 0 0 644 "u:object_r:system_file:s0"

@@ -7,7 +7,7 @@ BUILD_KERNEL()
     PARENT=$(pwd)
     cd "$KERNEL_TMP_DIR"
 
-    ./build.sh -m ${TARGET_CODENAME} -k y -d n
+    ./build.sh -m ${TARGET_CODENAME} -k y -r n
 
     cd $PARENT
 }
