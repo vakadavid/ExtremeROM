@@ -95,8 +95,12 @@ jobs:
 
           echo "Uploaded successfully! Download link:"
           echo "$RESPONSE" | jq -r '.data.downloadPage'
+          echo "MD5:"
+          md5sum "$ZIP_FILE"
 
-<<<<<<< HEAD
+          echo "SHA256:"
+          sha256sum "$ZIP_FILE"
+
       - name: Find built zips
         id: find_zips
         run: |
@@ -114,10 +118,3 @@ jobs:
         with:
           name: ExtremeNext
           path: ${{ env.ZIP_FILES }}
-=======
-          echo "MD5:"
-          md5sum "$ZIP_FILE"
-
-          echo "SHA256:"
-          sha256sum "$ZIP_FILE"
->>>>>>> second-repo/fifteen
