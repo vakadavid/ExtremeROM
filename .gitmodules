@@ -1,6 +1,6 @@
 [submodule "external/android-tools"]
 	path = external/android-tools
-	url = https://github.com/salvogiangri/android-tools.git
+	url = https://github.com/ExtremeXT/android-tools
 	ignore = dirty
 [submodule "external/apktool"]
 	path = external/apktool
@@ -14,9 +14,9 @@
 	path = external/img2sdat
 	url = https://github.com/salvogiangri/img2sdat.git
 	ignore = dirty
-[submodule "external/samfirm.js"]
-	path = external/samfirm.js
-	url = https://github.com/DavidArsene/samfirm.js.git
+[submodule "external/samloader"]
+	path = external/samloader
+	url = https://github.com/ananjaser1211/samloader.git
 	ignore = dirty
 [submodule "external/signapk"]
 	path = external/signapk
