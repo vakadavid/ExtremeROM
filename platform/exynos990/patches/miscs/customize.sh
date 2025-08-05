@@ -40,7 +40,6 @@ SET_PROP "vendor" "ro.hwui.use_vulkan" "true"
 SET_PROP "vendor" "debug.hwui.use_hint_manager" "true"
 
 # Encryption
-echo "Enabling encryption"
 LINE=$(sed -n "/^\/dev\/block\/by-name\/userdata/=" "$WORK_DIR/vendor/etc/fstab.exynos990")
 
 echo "Switching to FBE v2"
