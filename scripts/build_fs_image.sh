@@ -22,7 +22,6 @@ source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 1
 FORCE=false
 FS_TYPE=""
 SPARSE=false
-MAP_FILE=false
 INPUT_DIR=""
 PARTITION=""
 IMAGE_SIZE=""
@@ -47,9 +46,6 @@ BUILD_IMAGE_MKFS()
             # https://android.googlesource.com/platform/build/+/refs/tags/android-15.0.0_r1/tools/releasetools/build_image.py#49
             BUILD_CMD+="-T \"1230735600\" "
             BUILD_CMD+="-C \"$FS_CONFIG_FILE\" "
-            if $MAP_FILE; then
-                BUILD_CMD+="-B \"${OUTPUT_FILE//.img/.map}\" "
-            fi
             BUILD_CMD+="-L \"$MOUNT_POINT\" "
             if [ "$INODES" ]; then
                 BUILD_CMD+="-i \"$INODES\" "
@@ -87,9 +83,6 @@ BUILD_IMAGE_MKFS()
             BUILD_CMD+="--file-contexts \"$FILE_CONTEXT_FILE\" "
             # Samsung uses a different default fixed timestamp for erofs/f2fs
             BUILD_CMD+="-T \"1640995200\" "
-            if $MAP_FILE; then
-                BUILD_CMD+="--block-list-file \"${OUTPUT_FILE//.img/.map}\" "
-            fi
             BUILD_CMD+="\"$OUTPUT_FILE\" \"$INPUT_DIR\""
             ;;
         "f2fs")
@@ -101,9 +94,6 @@ BUILD_IMAGE_MKFS()
             BUILD_CMD+="-t \"$MOUNT_POINT\" "
             # Samsung uses a different default fixed timestamp for erofs/f2fs
             BUILD_CMD+="-T \"1640995200\" "
-            if $MAP_FILE; then
-                BUILD_CMD+="-B \"${OUTPUT_FILE//.img/.map}\" "
-            fi
             BUILD_CMD+="-L \"$MOUNT_POINT\" "
             # https://android.googlesource.com/platform/build/+/refs/tags/android-15.0.0_r1/tools/releasetools/build_image.py#818
             BUILD_CMD+="--readonly "
@@ -175,8 +165,6 @@ PREPARE_SCRIPT()
     while [[ "$1" == "-"* ]]; do
         if [[ "$1" == "--force" ]] || [[ "$1" == "-f" ]]; then
             FORCE=true
-        elif [[ "$1" == "--generate-map" ]] || [[ "$1" == "-m" ]]; then
-            MAP_FILE=true
         elif [[ "$1" == "--inodes" ]] || [[ "$1" == "-i" ]]; then
             shift; INODES="$1"
             if ! [[ "$INODES" =~ ^[+-]?[0-9]+$ ]]; then
@@ -275,7 +263,6 @@ PRINT_USAGE()
     echo "Usage: build_fs_image <fs> [options] <dir> <file_context> <fs_config>" >&2
     echo " -f, --force : Force delete output file" >&2
     echo " -i, --inodes : (ext4 only) Specify the extfs inodes count" >&2
-    echo " -m, --generate-map : Generates block map file" >&2
     echo " -o, --output : Specify the output image path, defaults to the parent input directory" >&2
     echo " -p, --partition-name : Specify the partition name, defaults to the input directory name" >&2
     echo " -s, --partition-size : Specify the partition size, defaults to the smallest possible" >&2
@@ -294,15 +281,15 @@ ROUND_UP_TO_4K()
 
 PREPARE_SCRIPT "$@"
 
-if $SPARSE; then
-    LOG_STEP_IN "- Starting build_fs_image for $(basename "$OUTPUT_FILE") ($FS_TYPE+sparse)..."
-else
-    LOG_STEP_IN "- Starting build_fs_image for $(basename "$OUTPUT_FILE") ($FS_TYPE)..."
+if $DEBUG; then
+    if $SPARSE; then
+        LOG_STEP_IN "- Starting build_fs_image for $(basename "$OUTPUT_FILE") ($FS_TYPE+sparse)..."
+    else
+        LOG_STEP_IN "- Starting build_fs_image for $(basename "$OUTPUT_FILE") ($FS_TYPE)..."
+    fi
 fi
 
 if [ ! "$IMAGE_SIZE" ]; then
-    LOG_STEP_IN "! Partition size is not set, detecting minimum size"
-
     if [[ "$FS_TYPE" == "erofs" ]]; then
         BUILD_IMAGE_MKFS
         IMAGE_SIZE="$(GET_IMAGE_SIZE "$OUTPUT_FILE")"
@@ -310,7 +297,9 @@ if [ ! "$IMAGE_SIZE" ]; then
         IMAGE_SIZE="$(GET_DISK_USAGE "$INPUT_DIR")"
     fi
 
-    LOG "- The tree size of $(basename "$OUTPUT_FILE") is $IMAGE_SIZE bytes ($(bc -l <<< "scale=0; $IMAGE_SIZE / 1048576") MB)"
+    if $DEBUG; then
+        LOG "- The tree size of $(basename "$OUTPUT_FILE") is $IMAGE_SIZE bytes ($(bc -l <<< "scale=0; $IMAGE_SIZE / 1048576") MB)"
+    fi
 
     IMAGE_SIZE="$(CALCULATE_SIZE_AND_RESERVED "$IMAGE_SIZE")"
     IMAGE_SIZE="$(ROUND_UP_TO_4K "$IMAGE_SIZE")"
@@ -320,7 +309,10 @@ if [ ! "$IMAGE_SIZE" ]; then
             INODES="$(GET_INODE_USAGE "$INPUT_DIR")"
         fi
 
-        LOG "- First pass based on estimates of $IMAGE_SIZE bytes ($(bc -l <<< "scale=0; $IMAGE_SIZE / 1048576") MB) and $INODES inodes"
+        if $DEBUG; then
+            LOG "- First pass for $(basename "$OUTPUT_FILE") based on estimates of $IMAGE_SIZE bytes ($(bc -l <<< "scale=0; $IMAGE_SIZE / 1048576") MB) and $INODES inodes"
+        fi
+
         SPARSE=false BUILD_IMAGE_MKFS
 
         IMAGE_INFO="$(tune2fs -l "$OUTPUT_FILE")"
@@ -341,7 +333,9 @@ if [ ! "$IMAGE_SIZE" ]; then
         [[ "$SPARE_INODES" -lt 1 ]] && SPARE_INODES=1
         INODES="$(bc -l <<< "$INODES + $SPARE_INODES")"
 
-        LOG "- Allocating $INODES inodes for $(basename "$OUTPUT_FILE")"
+        if $DEBUG; then
+            LOG "- Allocating $INODES inodes for $(basename "$OUTPUT_FILE")"
+        fi
     elif [[ "$FS_TYPE" == "f2fs" ]]; then
         # HACK f2fs doesn't seems to like images smaller than 22 MB
         [[ "$IMAGE_SIZE" -lt "23068672" ]] && IMAGE_SIZE="23068672"
@@ -359,12 +353,13 @@ if [ ! "$IMAGE_SIZE" ]; then
         IMAGE_SIZE="$((BLOCK_COUNT << LOG_BLOCKSIZE))"
     fi
 
-    LOG "- Allocating $IMAGE_SIZE bytes ($(bc -l <<< "scale=0; $IMAGE_SIZE / 1048576") MB) for $(basename "$OUTPUT_FILE")"
+    if $DEBUG; then
+        LOG "- Allocating $IMAGE_SIZE bytes ($(bc -l <<< "scale=0; $IMAGE_SIZE / 1048576") MB) for $(basename "$OUTPUT_FILE")"
+    fi
 
     LOG_STEP_OUT
 fi
 
-LOG "- Building image"
 if [ ! -f "$OUTPUT_FILE" ]; then
     BUILD_IMAGE_MKFS
 fi
