@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: af1f0dabe67d08fe77376059b6a48704fe99b09b
           submodules: 'recursive'
