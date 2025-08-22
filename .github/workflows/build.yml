@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v5
         with:
-          ref: 9dda283ab7241d79b14f4246652c17c52112dc2f
+          ref: ca4ba982ec2162b32eb1f4a04e2071baf0c65646
           submodules: 'recursive'
 
       - name: Free disk space (1/3)
