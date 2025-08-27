@@ -44,6 +44,7 @@ Any form of contribution, suggestions, bug report or feature request for the pro
 - Stock models in Settings and user apps
 - High end animations
 - Native/live blur support
+- Custom ExtremeROM Ringtones
 - Debloated from useless system services/additional apps
 - [BluetoothLibraryPatcher](https://github.com/3arthur6/BluetoothLibraryPatcher) included
 - [KnoxPatch](https://github.com/salvogiangri/KnoxPatch) implemented in system frameworks
@@ -92,6 +93,7 @@ A big thanks goes to the following for their invaluable contributions in no part
 - **[Emad](https://github.com/emadhamid7)** for help with S10-specific fixes
 - **[Duhan](https://github.com/duhansysl)** for help with vendor backports, a lot of fixes and advice
 - **[Anan](https://github.com/ananjaser1211)** for all of his contributions to OneUI porting
+- **[CiprianDinca](https://github.com/CiprianDinca9)** for custom ExtremeROM ringtones
 - **[PeterKnecht93](https://github.com/PeterKnecht93)** for help with smali and a lot of misc fixes
 - **[tsn](https://github.com/tisenu100)** for some smali fixes and advice
 - **[Nguyen Long](https://github.com/LumiPlayground)** for misc fixes and support
