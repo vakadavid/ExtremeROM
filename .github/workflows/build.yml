@@ -13,10 +13,17 @@ jobs:
         target: [z3s]
 
     steps:
+      - name: Cleanup build folder
+        uses: actions/checkout@v5
+        run: |
+          ls -la ./
+          rm -rf ./* || true
+          rm -rf ./.??* || true
+          ls -la ./
+
       - name: Checkout repo
         uses: actions/checkout@v5
         with:
-          ref: 4cfa84bda5ff9084cd0024f802d81bfd8f27e43f
           submodules: 'recursive'
 
       - name: Free disk space (1/3)
