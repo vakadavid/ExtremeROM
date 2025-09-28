@@ -192,9 +192,6 @@ DEX_TO_API()
 
     local API
     case "$DEX_VERSION" in
-        "31")
-            API="19"
-            ;;
         "35")
             API="23"
             ;;
