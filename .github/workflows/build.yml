@@ -35,7 +35,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v5
         with:
-          respiratory: https://github.com/ExtremeXT/ExtremeROM.git
+          repository: https://github.com/ExtremeXT/ExtremeROM.git
           submodules: 'recursive'
 
       - name: Free disk space (1/3)
