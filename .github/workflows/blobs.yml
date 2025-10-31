@@ -1,6 +1,5 @@
 name: Update prebuilt blobs
-permissions:
-  actions: write
+
 on:
   workflow_dispatch:
   schedule:
