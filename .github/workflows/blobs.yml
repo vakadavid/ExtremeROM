@@ -99,8 +99,8 @@ jobs:
           add-paths: |
             ${{ matrix.path }}
           commit-message: '${{ matrix.path }}: update blobs to ${{ env.PDA_BUILD }}'
-          committer: '134170125+vakadavid@users.noreply.github.com'
-          author: '134170125+vakadavid@users.noreply.github.com'
+          committer: 'vakadavid <134170125+vakadavid@users.noreply.github.com>'
+          author: 'vakadavid <134170125+vakadavid@users.noreply.github.com>'
           branch: '${{ matrix.path }}'
           delete-branch: true
           title: 'Update ${{ matrix.path }} blobs to ${{ env.PDA_BUILD }}'
