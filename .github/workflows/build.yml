@@ -56,7 +56,7 @@ jobs:
           cache: 'gradle'
 
       - name: Clear cache
-        uses: actions/github-script@v6
+        uses: actions/github-script@v8
         with:
           script: |
             console.log("About to clear")
