@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v6
         with:
-          ref: da632869416e3c71fd34f6f424b1563f960a916e
+          ref: 73170fa9e6e7c1d37112b32cabb470c490d5cb89
           submodules: 'recursive'
 
       - name: Free disk space (1/3)
@@ -55,25 +55,6 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
           cache: 'gradle'
-
-      - name: Clear cache
-        uses: actions/github-script@v6
-        with:
-          script: |
-            console.log("About to clear")
-            const caches = await github.rest.actions.getActionsCacheList({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            })
-            for (const cache of caches.data.actions_caches) {
-              console.log(cache)
-              github.rest.actions.deleteActionsCacheById({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                cache_id: cache.id,
-              })
-            }
-            console.log("Clear completed")
 
       - name: Build dependencies
         run: |
