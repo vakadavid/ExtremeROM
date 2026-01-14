@@ -23,3 +23,7 @@
 # VOLD:fstab.exynos9820
 /devices/platform/13d00000.dwmmc2/mmc_host*    auto    auto    default    voldmanaged=sdcard:auto
 /devices/platform/10c00000.usb*                auto    vfat    default    voldmanaged=usb:auto
+
+# Samsung ODE
+/dev/block/platform/13d60000.ufs/by-name/keydata	/keydata	ext4	noatime,nosuid,nodev,noauto_da_alloc,discard,journal_checksum,data=ordered,errors=panic	wait,check,nofail
+/dev/block/platform/13d60000.ufs/by-name/keyrefuge	/keyrefuge	ext4	noatime,nosuid,nodev,noauto_da_alloc,discard,journal_checksum,data=ordered,errors=panic	wait,check,nofail
