@@ -67,7 +67,6 @@ if [[ "$SOURCE_FP_SENSOR_CONFIG" != "$TARGET_FP_SENSOR_CONFIG" ]]; then
     DECODE_APK "system" "system/framework/framework.jar"
     DECODE_APK "system" "system/framework/services.jar"
     DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk"
-    DECODE_APK "system" "system/priv-app/BiometricSetting/BiometricSetting.apk"
     DECODE_APK "system_ext" "priv-app/SystemUI/SystemUI.apk"
 
     FTP="
