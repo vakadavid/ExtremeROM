@@ -134,7 +134,7 @@ system/priv-app/AREmojiEditor
 system/priv-app/AuthFramework
 system/priv-app/BCService
 system/priv-app/CpAgent
-system/priv-app/DiagMonAgent94
+system/priv-app/DiagMonAgent95
 system/priv-app/DigitalKey
 system/priv-app/EnhancedAttestationAgent
 system/priv-app/FBInstaller_NS
@@ -150,7 +150,7 @@ system/priv-app/SamsungCarKeyFw
 system/priv-app/SamsungPass
 system/priv-app/SamsungPositioning
 system/priv-app/SKMSAgent
-system/priv-app/SOAgent75
+system/priv-app/SOAgent76
 system/priv-app/SPPPushClient
 system/priv-app/StickerFaceARAvatar
 system/priv-app/YourPhone_P1_5
