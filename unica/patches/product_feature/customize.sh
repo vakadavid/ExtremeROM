@@ -333,8 +333,8 @@ fi
 if $SOURCE_SUPPORT_HOTSPOT_DUALAP; then
     if ! $TARGET_SUPPORT_HOTSPOT_DUALAP; then
         LOG_STEP_IN "- Applying Hotspot DualAP patches"
-        APPLY_PATCH "system" "system/framework/semwifi-service.jar" "$SRC_DIR/unica/patches/product_feature/wifi/semwifi-service.jar/0001-Disable-DualAP-support.patch"
-        APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" "$SRC_DIR/unica/patches/product_feature/wifi/SecSettings.apk/0001-Disable-DualAP-support.patch"
+        APPLY_PATCH "system" "system/framework/semwifi-service.jar" "$SRC_DIR/unica/patches/product_feature/wifi/semwifi-service.jar/0002-Disable-DualAP-support.patch"
+        APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" "$SRC_DIR/unica/patches/product_feature/wifi/SecSettings.apk/0002-Disable-DualAP-support.patch"
         LOG_STEP_OUT
     fi
 fi
@@ -342,7 +342,7 @@ fi
 if $SOURCE_SUPPORT_HOTSPOT_WPA3; then
     if ! $TARGET_SUPPORT_HOTSPOT_WPA3; then
         LOG_STEP_IN "- Applying Hotspot WPA3 patches"
-        APPLY_PATCH "system" "system/framework/semwifi-service.jar" "$SRC_DIR/unica/patches/product_feature/wifi/semwifi-service.jar/0002-Disable-Hotspot-WPA3-support.patch"
+        APPLY_PATCH "system" "system/framework/semwifi-service.jar" "$SRC_DIR/unica/patches/product_feature/wifi/semwifi-service.jar/0003-Disable-Hotspot-WPA3-support.patch"
         LOG_STEP_OUT
     fi
 fi
@@ -350,7 +350,7 @@ fi
 if $SOURCE_SUPPORT_HOTSPOT_6GHZ; then
     if ! $TARGET_SUPPORT_HOTSPOT_6GHZ; then
         LOG_STEP_IN "- Applying Hotspot 6GHz patches"
-        APPLY_PATCH "system" "system/framework/semwifi-service.jar" "$SRC_DIR/unica/patches/product_feature/wifi/semwifi-service.jar/0003-Disable-Hotspot-6GHz-support.patch"
+        APPLY_PATCH "system" "system/framework/semwifi-service.jar" "$SRC_DIR/unica/patches/product_feature/wifi/semwifi-service.jar/0004-Disable-Hotspot-6GHz-support.patch"
         LOG_STEP_OUT
     fi
 fi
@@ -367,7 +367,7 @@ fi
 if $SOURCE_SUPPORT_HOTSPOT_ENHANCED_OPEN; then
     if ! $TARGET_SUPPORT_HOTSPOT_ENHANCED_OPEN; then
         LOG_STEP_IN "- Applying Hotspot Enhanced Open patches"
-        APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" "$SRC_DIR/unica/patches/product_feature/wifi/SecSettings.apk/0003-Disable-Hotspot-Enhanced-Open.patch"
+        APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" "$SRC_DIR/unica/patches/product_feature/wifi/SecSettings.apk/0004-Disable-Hotspot-Enhanced-Open.patch"
         LOG_STEP_OUT
     fi
 fi
