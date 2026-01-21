@@ -67,7 +67,7 @@ LOG_STEP_IN
 LOG "- Patching Video SVC Check"
 # Early jump after the log and abort functions when configureSVC fails
 # cbz this,LAB_001ddbe0 -> b LAB_001ddc24
-HEX_PATCH "$WORK_DIR/system/system/lib64/libstagefright.so" "da4a0594e0031a2a22feff17" "da4a0594e0031a2a19000014"
+HEX_PATCH "$WORK_DIR/system/system/lib64/libstagefright.so" "20020034fa03002a21fcffd0" "200200342100001421fcffd0"
 
 LOG "- Patching HDR10+ Check"
 # Skip HDR10+ Recording ASSERT
