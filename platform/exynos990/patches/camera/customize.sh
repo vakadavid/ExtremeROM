@@ -72,7 +72,8 @@ HEX_PATCH "$WORK_DIR/system/system/lib64/libstagefright.so" "20020034fa03002a21f
 LOG "- Patching HDR10+ Check"
 # Skip HDR10+ Recording ASSERT
 # cbz this,LAB_001dde38 -> nop
-HEX_PATCH "$WORK_DIR/system/system/lib64/libstagefright.so" "010140f90a4d0594604d0034" "010140f90a4d05941f2003d5"
+ADD_TO_WORK_DIR "pa3qzcx" "system" "system/lib64/libstagefright.so" 0 0 644 "u:object_r:system_lib_file:s0"
+HEX_PATCH "$WORK_DIR/system/system/lib64/libstagefright.so" "010140f9cf390594a0500034" "010140f91f2003d51f2003d5"
 LOG_STEP_OUT
 
 LOG_STEP_IN "- Adding prebuilt libs from other devices"
