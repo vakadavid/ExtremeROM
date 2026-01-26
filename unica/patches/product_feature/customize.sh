@@ -126,6 +126,14 @@ if ! $SOURCE_HAS_QHD_DISPLAY; then
         DECODE_APK "system" "system/framework/framework.jar"
         DECODE_APK "system" "system/framework/gamemanager.jar"
         DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk"
+        
+if [ "$TARGET_PLATFORM_SDK_VERSION" -ge "36" ]; then
+            APPLY_PATCH "system" "system/framework/framework.jar" \
+                "$MODPATH/resolution/framework.jar/0001-Enable-FW_SUPPORT_MULTI_RESOLUTION.patch"
+        else
+            APPLY_PATCH "system" "system/framework/framework.jar" \
+                "$MODPATH/resolution/framework.jar/0001-Enable-FW_DYNAMIC_RESOLUTION_CONTROL.patch"
+        fi
 
         ADD_TO_WORK_DIR "$MODPATH/resolution/system" "system" "."
         ADD_TO_WORK_DIR "e2sxxx" "system" "media"
