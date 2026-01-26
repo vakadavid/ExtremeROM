@@ -30,15 +30,6 @@ etc/dpolicy
 
 # Samsung SIM Unlock
 SYSTEM_DEBLOAT+="
-system/bin/ssud
-system/etc/init/ssu_r13sxxx.rc
-system/etc/init/ssu.rc
-system/etc/permissions/privapp-permissions-com.samsung.ssu.xml
-system/etc/sysconfig/samsungsimunlock.xml
-system/lib64/android.security.securekeygeneration-ndk.so
-system/lib64/vendor.samsung.hardware.security.ssu-V1-ndk.so
-system/lib64/libssu_keystore2.so
-system/priv-app/SsuService
 "
 
 # Recovery restoration script
@@ -90,7 +81,6 @@ system/app/Traceur
 system/app/UniversalMDMClient
 system/app/WifiGuider
 system/etc/default-permissions/default-permissions-com.sec.spp.push.xml
-system/etc/init/digitalkey_init_ble_tss2.rc
 system/etc/init/samsung_pass_authenticator_service.rc
 system/etc/permissions/authfw.xml
 system/etc/permissions/com.samsung.feature.ipsgeofence.xml
@@ -131,7 +121,6 @@ system/priv-app/AREmoji
 system/priv-app/AREmojiEditor
 system/priv-app/AuthFramework
 system/priv-app/BCService
-system/priv-app/CpAgent
 system/priv-app/DiagMonAgent95
 system/priv-app/DigitalKey
 system/priv-app/EnhancedAttestationAgent
