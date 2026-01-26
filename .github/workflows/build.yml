@@ -16,7 +16,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v6
         with:
-          ref: a5a651111ab321246f19eb926afd275fd62c7f3f
+          repository: devcore94/MonsterROM
+          ref: c41eda5f5eb1150427e018f1221f75b425100ac1
           submodules: 'recursive'
 
       - name: Free disk space (1/3)
