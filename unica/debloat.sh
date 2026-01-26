@@ -39,8 +39,6 @@ etc/init/vendor_flash_recovery.rc
 
 # Apps debloat
 PRODUCT_DEBLOAT+="
-app/Chrome64
-app/Duo
 app/Gmail2
 app/Maps
 app/YouTube
@@ -60,7 +58,6 @@ system/app/MDMApp
 system/app/PlayAutoInstallConfig
 system/app/Rampart
 system/app/SamsungPassAutofill_v1
-system/app/SamsungTTSVoice_ar_AE_m00
 system/app/SamsungTTSVoice_de_DE_f00
 system/app/SamsungTTSVoice_en_GB_f00
 system/app/SamsungTTSVoice_es_ES_f00
@@ -68,7 +65,6 @@ system/app/SamsungTTSVoice_es_MX_f00
 system/app/SamsungTTSVoice_es_US_f00
 system/app/SamsungTTSVoice_fr_FR_f00
 system/app/SamsungTTSVoice_hi_IN_f00
-system/app/SamsungTTSVoice_id_ID_f00
 system/app/SamsungTTSVoice_it_IT_f00
 system/app/SamsungTTSVoice_pl_PL_f00
 system/app/SamsungTTSVoice_pt_BR_f00
@@ -115,7 +111,6 @@ system/etc/sysconfig/samsungpassapp.xml
 system/etc/sysconfig/samsungpushservice.xml
 system/hidden/SmartTutor
 system/preload/Facebook_stub_preload
-system/preload/Instagram_stub_preload
 system/priv-app/AppUpdateCenter
 system/priv-app/AREmoji
 system/priv-app/AREmojiEditor
