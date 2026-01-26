@@ -229,9 +229,10 @@ if $SOURCE_IS_ESIM_SUPPORTED; then
 fi
 
 if [ -f "$FW_DIR/${MODEL}_${REGION}/system/system/etc/permissions/com.sec.feature.cover.xml" ]; then
-LOG_STEP_IN "- Adding LED Case Cover support"
+    LOG_STEP_IN "- Adding LED Case Cover support & Wallpaper from S25FE"
     ADD_TO_WORK_DIR "p3sxxx" "system" "system/priv-app/LedCoverService/LedCoverService.apk"
     ADD_TO_WORK_DIR "p3sxxx" "system" "system/etc/permissions/privapp-permissions-com.sec.android.cover.ledcover.xml"
+    ADD_TO_WORK_DIR "p3sxxx" "system" "system/priv-app/wallpaper-res/wallpaper-res.apk"
     LOG_STEP_OUT
 fi
 
