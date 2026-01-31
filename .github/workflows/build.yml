@@ -16,7 +16,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v6
         with:
-          ref: 7661eb0ea0d5356358ae1d4e507ca73276f8dbfe
+          repository: Yacinegti-DZ/MonsterROM
+          ref: c41eda5f5eb1150427e018f1221f75b425100ac1
           submodules: 'recursive'
 
       - name: Free disk space (1/3)
