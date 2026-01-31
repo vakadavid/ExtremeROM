@@ -18,9 +18,10 @@ jobs:
         with:
           repository: Yacinegti-DZ/MonsterROM
           ref: c41eda5f5eb1150427e018f1221f75b425100ac1
-          path: ./external-repo
-          fetch-depth: 0
+          path: MonsterROM
           submodules: 'recursive'
+
+      - uses: ./MonsterROM          
  
       - name: Use files from external repo
         run: |
