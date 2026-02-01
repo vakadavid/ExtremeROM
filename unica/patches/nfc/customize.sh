@@ -24,7 +24,6 @@ fi
 DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk"
 
 FTP="
-system/priv-app/SecSettings/SecSettings.apk/smali_classes5/com/samsung/android/settings/nfc/NfcAntennaGuideDialog.smali
 system/priv-app/SecSettings/SecSettings.apk/smali_classes5/com/samsung/android/settings/nfc/NfcSettings.smali
 "
 for f in $FTP; do
