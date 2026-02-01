@@ -1,5 +1,5 @@
 # [
-EXTREMEKRNL_REPO="https://github.com/ExtremeXT/990_upstream_v2/"
+EXTREMEKRNL_REPO="https://github.com/vakadavid/990_upstream_v2/"
 
 BUILD_KERNEL()
 {
@@ -56,7 +56,7 @@ REPLACE_KERNEL_BINARIES()
         fi
     else
         LOG "- Cloning ExtremeKernel"
-        EVAL "git clone "$EXTREMEKRNL_REPO" --single-branch "$KERNEL_TMP_DIR" --recurse-submodules"
+        EVAL "git clone "$EXTREMEKRNL_REPO" --branch cheesbi "$KERNEL_TMP_DIR" --recurse-submodules"
     fi
 
     LOG "- Running the kernel build script."
