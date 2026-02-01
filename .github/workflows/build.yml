@@ -21,11 +21,7 @@ jobs:
           path: MonsterROM
           submodules: 'recursive'
 
-      - uses: ./MonsterROM          
- 
-      - name: Use files from external repo
-        run: |
-          ls -al ./external-repo
+      - uses: ./MonsterROM
 
       - name: Free disk space (1/3)
         run: |
