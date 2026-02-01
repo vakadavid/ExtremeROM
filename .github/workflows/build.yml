@@ -18,10 +18,10 @@ jobs:
         with:
           repository: Yacinegti-DZ/MonsterROM
           ref: c41eda5f5eb1150427e018f1221f75b425100ac1
-          path: MonsterROM
+          path: ExtremeROM
           submodules: 'recursive'
 
-      - uses: ./MonsterROM
+      - uses: ./ExtremeROM
 
       - name: Free disk space (1/3)
         run: |
