@@ -1,4 +1,4 @@
-name: Build MonsterROM
+name: Build ExtremeROM
 
 on:
   workflow_dispatch:
@@ -10,12 +10,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [beyond0lte, beyond1lte, beyond2lte, beyondx, x1s, y2s, z3s, c1s, c2s, r8s, o1s, t2s, p3s, r9s, r0s, b0s, g0s]
+        target: [z3s]
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
+          ref: 7661eb0ea0d5356358ae1d4e507ca73276f8dbfe
           submodules: 'recursive'
 
       - name: Free disk space (1/3)
@@ -45,8 +46,8 @@ jobs:
           sudo modprobe erofs f2fs
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          echo -n "${{ secrets.PLATFORM_KEY_PK8 }}" | base64 --decode > security/monsterrom_platform.pk8
-          echo -n "${{ secrets.PLATFORM_KEY_PEM }}" | base64 --decode > security/monsterrom_platform.x509.pem
+          echo -n "${{ secrets.PLATFORM_KEY_PK8 }}" | base64 --decode > security/extremerom_platform.pk8
+          echo -n "${{ secrets.PLATFORM_KEY_PEM }}" | base64 --decode > security/extremerom_platform.x509.pem
 
       - name: Set up JDK 21
         uses: actions/setup-java@v5
@@ -93,9 +94,26 @@ jobs:
 
           echo "Uploaded successfully! Download link:"
           echo "$RESPONSE" | jq -r '.data.downloadPage'
-
           echo "MD5:"
           md5sum "$ZIP_FILE"
 
           echo "SHA256:"
           sha256sum "$ZIP_FILE"
+
+      - name: Find built zips
+        id: find_zips
+        run: |
+          ZIP_FILES=$(find . -type f -name "*.zip")
+          if [[ -z "$ZIP_FILES" ]]; then
+            echo "No ZIPs found! Exiting."
+            exit 1
+          fi
+          echo "ZIP_FILES<<EOF" >> $GITHUB_ENV
+          echo "$ZIP_FILES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Upload built rom
+        uses: actions/upload-artifact@v6
+        with:
+          name: ExtremeNext
+          path: ${{ env.ZIP_FILES }}
