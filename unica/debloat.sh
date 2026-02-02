@@ -48,18 +48,6 @@ system/lib64/libssu_keystore2.so
 system/priv-app/SsuService
 "
 
-# Recovery restoration script
-VENDOR_DEBLOAT+="
-etc/init/vendor_flash_recovery.rc
-"
-
-# PDP apps
-SYSTEM_DEBLOAT+="
-system/preload
-"
-
-truncate -s 0 "$WORK_DIR/system/system/etc/vpl_apks_count_list.txt"
-
 # eSIM
 [[ "$TARGET_COMMON_SUPPORT_EMBEDDED_SIM" == "false" ]] && SYSTEM_DEBLOAT+="
 system/etc/permissions/privapp-permissions-com.samsung.android.app.esimkeystring.xml
