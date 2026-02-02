@@ -72,11 +72,6 @@ system/priv-app/EsimKeyString
 system/priv-app/EuiccService
 "
 
-# SmartFPSAdjuster
-[ "$TARGET_LCD_CONFIG_HFR_MODE" -lt "1" ] && SYSTEM_DEBLOAT+="
-system/priv-app/IntelligentDynamicFpsService
-"
-
 # Application recommendations
 SYSTEM_DEBLOAT+="
 system/app/MAPSAgent
@@ -98,12 +93,6 @@ SYSTEM_DEBLOAT+="
 system/priv-app/CIDManager
 "
 
-# Gaming Hub
-SYSTEM_DEBLOAT+="
-system/etc/permissions/privapp-permissions-com.samsung.android.game.gamehome.xml
-system/priv-app/GameHome
-"
-
 # Gemini shortcut
 PRODUCT_DEBLOAT+="
 app/BardShell
@@ -119,16 +108,6 @@ PRODUCT_DEBLOAT+="
 app/AssistantShell
 "
 
-# Google Chrome
-PRODUCT_DEBLOAT+="
-app/Chrome
-"
-
-# Google Duo
-PRODUCT_DEBLOAT+="
-app/DuoStub
-"
-
 # Google Maps
 PRODUCT_DEBLOAT+="
 app/Maps
@@ -141,12 +120,10 @@ system/app/PlayAutoInstallConfig
 
 # HwModuleTest
 SYSTEM_DEBLOAT+="
-system/app/Cameralyzer
 system/app/FactoryAirCommandManager
 system/app/FactoryCameraFB
 system/app/HMT
 system/app/WlanTest
-system/etc/default-permissions/default-permissions-com.sec.factory.cameralyzer.xml
 system/etc/permissions/privapp-permissions-com.samsung.android.providers.factory.xml
 system/etc/permissions/privapp-permissions-com.sec.facatfunction.xml
 system/priv-app/FacAtFunction
@@ -186,9 +163,7 @@ system/priv-app/OneDrive_Samsung_v3
 
 # My Galaxy
 SYSTEM_DEBLOAT+="
-system/etc/permissions/privapp-permissions-com.mygalaxy.service.xml
 system/etc/sysconfig/preinstalled-packages-com.mygalaxy.service.xml
-system/priv-app/MyGalaxyService
 "
 
 # Samsung Analytics
@@ -214,32 +189,10 @@ system/priv-app/AREmojiEditor
 system/priv-app/AvatarEmojiSticker
 "
 
-# Samsung Calendar
-SYSTEM_DEBLOAT+="
-system/app/SamsungCalendar
-"
-
-# Samsung Clock
-SYSTEM_DEBLOAT+="
-system/app/ClockPackage
-"
-
-# Samsung Free
-SYSTEM_DEBLOAT+="
-system/app/MinusOnePage
-"
-
 # Samsung Language Core
 SYSTEM_DEBLOAT+="
 system/etc/permissions/signature-permissions-com.samsung.android.offline.languagemodel.xml
 system/priv-app/OfflineLanguageModel_stub
-"
-
-# Samsung Messages
-SYSTEM_DEBLOAT+="
-system/etc/default-permissions/default-permissions-com.samsung.android.messaging.xml
-system/etc/permissions/privapp-permissions-com.samsung.android.messaging.xml
-system/priv-app/SamsungMessages
 "
 
 # Samsung Pass
@@ -255,11 +208,6 @@ system/etc/sysconfig/samsungauthframework.xml
 system/etc/sysconfig/samsungpassapp.xml
 system/priv-app/AuthFramework
 system/priv-app/SamsungPass
-"
-
-# Samsung Reminder
-SYSTEM_DEBLOAT+="
-system/app/SmartReminder
 "
 
 # Samsung Visit In
@@ -327,11 +275,6 @@ system/priv-app/FotaAgent
 SYSTEM_DEBLOAT+="
 system/etc/permissions/privapp-permissions-com.samsung.android.svcagent.xml
 system/priv-app/SVCAgent
-"
-
-# SVoiceIME
-SYSTEM_DEBLOAT+="
-system/priv-app/SVoiceIME
 "
 
 # Voice Access
