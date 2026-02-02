@@ -24,6 +24,7 @@
 SYSTEM_DEBLOAT+="
 dpolicy_system
 "
+
 VENDOR_DEBLOAT+="
 etc/dpolicy
 "
@@ -47,16 +48,94 @@ system/etc/permissions/signature-permissions-com.samsung.android.offline.languag
 system/priv-app/OfflineLanguageModel_stub
 "
 
+# PDP apps
+SYSTEM_DEBLOAT+="
+system/preload
+"
+
+# Live Transcribe
+SYSTEM_DEBLOAT+="
+system/app/LiveTranscribe
+system/etc/sysconfig/feature-a11y-preload.xml
+"
+
+# SVC Agent
+SYSTEM_DEBLOAT+="
+system/etc/permissions/privapp-permissions-com.samsung.android.svcagent.xml
+system/priv-app/SVCAgent
+"
+
+# Samsung Messages
+SYSTEM_DEBLOAT+="
+system/etc/default-permissions/default-permissions-com.samsung.android.messaging.xml
+system/etc/permissions/privapp-permissions-com.samsung.android.messaging.xml
+system/priv-app/SamsungMessages
+"
+
 # Voice Access
 SYSTEM_DEBLOAT+="
 system/app/VoiceAccess
 system/etc/sysconfig/feature-a11y-preload-voacc.xml
 "
 
-# Microsoft OneDrive
+# Smart Touch Call
 SYSTEM_DEBLOAT+="
-system/etc/permissions/privapp-permissions-com.microsoft.skydrive.xml
-system/priv-app/OneDrive_Samsung_v3
+system/etc/default-permissions/default-permissions-com.samsung.android.visualars.xml
+system/etc/permissions/privapp-permissions-com.samsung.android.visualars.xml
+system/priv-app/SmartTouchCall
+"
+
+# Samsung Analytics
+SYSTEM_DEBLOAT+="
+system/app/DsmsAPK
+system/etc/permissions/privapp-permissions-com.samsung.android.dqagent.xml
+system/etc/permissions/privapp-permissions-com.sec.android.diagmonagent.xml
+system/etc/permissions/privapp-permissions-com.sec.android.soagent.xml
+system/priv-app/DeviceQualityAgent36
+system/priv-app/DiagMonAgent95
+system/priv-app/SOAgent76
+"
+
+# HwModuleTest
+SYSTEM_DEBLOAT+="
+system/app/Cameralyzer
+system/app/FactoryAirCommandManager
+system/app/FactoryCameraFB
+system/app/HMT
+system/app/WlanTest
+system/etc/default-permissions/default-permissions-com.sec.factory.cameralyzer.xml
+system/etc/permissions/privapp-permissions-com.samsung.android.providers.factory.xml
+system/etc/permissions/privapp-permissions-com.sec.facatfunction.xml
+system/priv-app/FacAtFunction
+system/priv-app/FactoryTestProvider
+"
+
+# Samsung PROCA certificate DB
+SYSTEM_DEBLOAT+="
+system/etc/proca.db
+"
+
+SYSTEM_EXT_DEBLOAT+="
+framework/org.carconnectivity.android.digitalkey.rangingintent.jar
+framework/org.carconnectivity.android.digitalkey.secureelement.jar
+"
+
+# Samsung Wallet
+SYSTEM_DEBLOAT+="
+system/etc/init/digitalkey_init_ble_tss2.rc
+system/etc/permissions/org.carconnectivity.android.digitalkey.rangingintent.xml
+system/etc/permissions/org.carconnectivity.android.digitalkey.secureelement.xml
+system/etc/permissions/privapp-permissions-com.samsung.android.carkey.xml
+system/etc/permissions/privapp-permissions-com.samsung.android.dkey.xml
+system/etc/permissions/privapp-permissions-com.samsung.android.spayfw.xml
+system/etc/permissions/signature-permissions-com.samsung.android.spay.xml
+system/etc/permissions/signature-permissions-com.samsung.android.spayfw.xml
+system/etc/sysconfig/digitalkey.xml
+system/etc/sysconfig/preinstalled-packages-com.samsung.android.dkey.xml
+system/etc/sysconfig/preinstalled-packages-com.samsung.android.spayfw.xml
+system/priv-app/DigitalKey
+system/priv-app/PaymentFramework
+system/priv-app/SamsungCarKeyFw
 "
 
 # My Galaxy
@@ -84,6 +163,7 @@ etc/init/vendor_flash_recovery.rc
 PRODUCT_DEBLOAT+="
 app/AssistantShell
 app/BardShell
+app/Chrome
 app/Chrome64
 app/DuoStub
 app/Gmail2
@@ -193,6 +273,7 @@ system/priv-app/SVoiceIME
 system/priv-app/TalkbackSE
 system/priv-app/AREmoji
 system/priv-app/AREmojiEditor
+system/priv-app/AvatarEmojiSticker
 system/priv-app/AuthFramework
 system/priv-app/BCService
 system/priv-app/CpAgent
