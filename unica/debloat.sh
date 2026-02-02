@@ -53,6 +53,19 @@ system/app/VoiceAccess
 system/etc/sysconfig/feature-a11y-preload-voacc.xml
 "
 
+# Microsoft OneDrive
+SYSTEM_DEBLOAT+="
+system/etc/permissions/privapp-permissions-com.microsoft.skydrive.xml
+system/priv-app/OneDrive_Samsung_v3
+"
+
+# My Galaxy
+SYSTEM_DEBLOAT+="
+system/etc/permissions/privapp-permissions-com.mygalaxy.service.xml
+system/etc/sysconfig/preinstalled-packages-com.mygalaxy.service.xml
+system/priv-app/MyGalaxyService
+"
+
 # SettingsHelper
 SYSTEM_DEBLOAT+="
 system/etc/permissions/privapp-permissions-com.samsung.android.settingshelper.xml
@@ -71,7 +84,7 @@ etc/init/vendor_flash_recovery.rc
 PRODUCT_DEBLOAT+="
 app/AssistantShell
 app/BardShell
-app/Chrome
+app/Chrome64
 app/DuoStub
 app/Gmail2
 app/Maps
