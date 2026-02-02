@@ -161,11 +161,6 @@ system/etc/permissions/privapp-permissions-com.microsoft.skydrive.xml
 system/priv-app/OneDrive_Samsung_v3
 "
 
-# My Galaxy
-SYSTEM_DEBLOAT+="
-system/etc/sysconfig/preinstalled-packages-com.mygalaxy.service.xml
-"
-
 # Samsung Analytics
 SYSTEM_DEBLOAT+="
 system/app/DsmsAPK
