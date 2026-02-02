@@ -41,6 +41,25 @@ system/lib64/libssu_keystore2.so
 system/priv-app/SsuService
 "
 
+# Samsung Language Core
+SYSTEM_DEBLOAT+="
+system/etc/permissions/signature-permissions-com.samsung.android.offline.languagemodel.xml
+system/priv-app/OfflineLanguageModel_stub
+"
+
+# Voice Access
+SYSTEM_DEBLOAT+="
+system/app/VoiceAccess
+system/etc/sysconfig/feature-a11y-preload-voacc.xml
+"
+
+# SettingsHelper
+SYSTEM_DEBLOAT+="
+system/etc/permissions/privapp-permissions-com.samsung.android.settingshelper.xml
+system/etc/sysconfig/settingshelper.xml
+system/priv-app/SHClient
+"
+
 # Recovery restoration script
 VENDOR_DEBLOAT+="
 recovery-from-boot.p
