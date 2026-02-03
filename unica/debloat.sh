@@ -42,12 +42,6 @@ system/lib64/libssu_keystore2.so
 system/priv-app/SsuService
 "
 
-# Samsung Language Core
-SYSTEM_DEBLOAT+="
-system/etc/permissions/signature-permissions-com.samsung.android.offline.languagemodel.xml
-system/priv-app/OfflineLanguageModel_stub
-"
-
 # PDP apps
 SYSTEM_DEBLOAT+="
 system/preload
@@ -76,13 +70,6 @@ system/priv-app/SamsungMessages
 SYSTEM_DEBLOAT+="
 system/app/VoiceAccess
 system/etc/sysconfig/feature-a11y-preload-voacc.xml
-"
-
-# Smart Touch Call
-SYSTEM_DEBLOAT+="
-system/etc/default-permissions/default-permissions-com.samsung.android.visualars.xml
-system/etc/permissions/privapp-permissions-com.samsung.android.visualars.xml
-system/priv-app/SmartTouchCall
 "
 
 # Samsung Analytics
@@ -136,13 +123,6 @@ system/etc/sysconfig/preinstalled-packages-com.samsung.android.spayfw.xml
 system/priv-app/DigitalKey
 system/priv-app/PaymentFramework
 system/priv-app/SamsungCarKeyFw
-"
-
-# My Galaxy
-SYSTEM_DEBLOAT+="
-system/etc/permissions/privapp-permissions-com.mygalaxy.service.xml
-system/etc/sysconfig/preinstalled-packages-com.mygalaxy.service.xml
-system/priv-app/MyGalaxyService
 "
 
 # SettingsHelper
@@ -277,7 +257,7 @@ system/priv-app/AvatarEmojiSticker
 system/priv-app/AuthFramework
 system/priv-app/BCService
 system/priv-app/CpAgent
-system/priv-app/DiagMonAgent95
+system/priv-app/DiagMonAgent94
 system/priv-app/DigitalKey
 system/priv-app/EnhancedAttestationAgent
 system/priv-app/FBInstaller_NS
@@ -293,7 +273,7 @@ system/priv-app/SamsungCarKeyFw
 system/priv-app/SamsungPass
 system/priv-app/SamsungPositioning
 system/priv-app/SKMSAgent
-system/priv-app/SOAgent76
+system/priv-app/SOAgent75
 system/priv-app/SPPPushClient
 system/priv-app/StickerFaceARAvatar
 system/priv-app/YourPhone_P1_5
