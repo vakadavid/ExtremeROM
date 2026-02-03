@@ -63,15 +63,8 @@ SET_PROP "vendor" "ro.crypto.volume.metadata.method" "dm-default-key"
 SET_PROP "vendor" "ro.crypto.volume.options" "::v2"
 LOG_STEP_OUT
 
-# Samsung ODE
-ENTRIES="
-ODE
-keydata
-keyrefuge
-"
-for e in $ENTRIES; do
-    sed -i "/${e}/d" "$WORK_DIR/vendor/etc/fstab.exynos990"
-done
+# ODE
+sed -i -e "/ODE/d" -e "/keydata/d" -e "/keyrefuge/d" "$WORK_DIR/vendor/etc/fstab.exynos990"
 
 # For some reason we are missing 2 permissions here: android.hardware.security.model.compatible and android.software.controls
 # First one is related to encryption and second one to SmartThings Device Control
