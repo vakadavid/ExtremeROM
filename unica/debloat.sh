@@ -24,7 +24,6 @@
 SYSTEM_DEBLOAT+="
 dpolicy_system
 "
-
 VENDOR_DEBLOAT+="
 etc/dpolicy
 "
@@ -61,20 +60,6 @@ system/app/VoiceAccess
 system/etc/sysconfig/feature-a11y-preload-voacc.xml
 "
 
-# HwModuleTest
-SYSTEM_DEBLOAT+="
-system/app/Cameralyzer
-system/app/FactoryAirCommandManager
-system/app/FactoryCameraFB
-system/app/HMT
-system/app/WlanTest
-system/etc/default-permissions/default-permissions-com.sec.factory.cameralyzer.xml
-system/etc/permissions/privapp-permissions-com.samsung.android.providers.factory.xml
-system/etc/permissions/privapp-permissions-com.sec.facatfunction.xml
-system/priv-app/FacAtFunction
-system/priv-app/FactoryTestProvider
-"
-
 # Samsung PROCA certificate DB
 SYSTEM_DEBLOAT+="
 system/etc/proca.db
@@ -101,13 +86,6 @@ system/etc/sysconfig/preinstalled-packages-com.samsung.android.spayfw.xml
 system/priv-app/DigitalKey
 system/priv-app/PaymentFramework
 system/priv-app/SamsungCarKeyFw
-"
-
-# SettingsHelper
-SYSTEM_DEBLOAT+="
-system/etc/permissions/privapp-permissions-com.samsung.android.settingshelper.xml
-system/etc/sysconfig/settingshelper.xml
-system/priv-app/SHClient
 "
 
 # Recovery restoration script
@@ -146,10 +124,7 @@ system/app/ChromeCustomizations
 system/app/EasymodeContactsWidget81
 system/app/EasyOneHand3
 system/app/GooglePrintRecommendationService
-system/app/MinusOnePage
 system/app/MoccaMobile
-system/app/Netflix_activationCommon
-system/app/Netflix_stub
 system/app/Notes40
 system/app/ParentalCare
 system/app/PartnerBookmarksProvider
