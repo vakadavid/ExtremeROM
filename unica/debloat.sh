@@ -42,21 +42,10 @@ system/lib64/libssu_keystore2.so
 system/priv-app/SsuService
 "
 
-# PDP apps
-SYSTEM_DEBLOAT+="
-system/preload
-"
-
 # Live Transcribe
 SYSTEM_DEBLOAT+="
 system/app/LiveTranscribe
 system/etc/sysconfig/feature-a11y-preload.xml
-"
-
-# SVC Agent
-SYSTEM_DEBLOAT+="
-system/etc/permissions/privapp-permissions-com.samsung.android.svcagent.xml
-system/priv-app/SVCAgent
 "
 
 # Samsung Messages
@@ -70,17 +59,6 @@ system/priv-app/SamsungMessages
 SYSTEM_DEBLOAT+="
 system/app/VoiceAccess
 system/etc/sysconfig/feature-a11y-preload-voacc.xml
-"
-
-# Samsung Analytics
-SYSTEM_DEBLOAT+="
-system/app/DsmsAPK
-system/etc/permissions/privapp-permissions-com.samsung.android.dqagent.xml
-system/etc/permissions/privapp-permissions-com.sec.android.diagmonagent.xml
-system/etc/permissions/privapp-permissions-com.sec.android.soagent.xml
-system/priv-app/DeviceQualityAgent36
-system/priv-app/DiagMonAgent95
-system/priv-app/SOAgent76
 "
 
 # HwModuleTest
@@ -141,9 +119,8 @@ etc/init/vendor_flash_recovery.rc
 PRODUCT_DEBLOAT+="
 app/AssistantShell
 app/BardShell
-app/Chrome
 app/Chrome64
-app/DuoStub
+app/Duo
 app/Gmail2
 app/Maps
 app/YouTube
@@ -161,8 +138,6 @@ SYSTEM_DEBLOAT+="
 system/app/ARCore
 system/app/BBCAgent
 system/app/BixbyWakeup
-system/app/Cameralyzer
-system/app/ClockPackage
 system/app/DictDiotekForSec
 system/app/DRParser
 system/app/CarrierDefaultApp
