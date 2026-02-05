@@ -26,7 +26,7 @@ TARGET_FINGERPRINT="${TARGET_FINGERPRINT//$(GET_PROP "$FW_DIR/$TARGET_FIRMWARE_P
 
 TMP_DIR="$OUT_DIR/zip"
 
-ROM_STATUS="UNOFFICIAL"
+ROM_STATUS="OFFICIAL"
 $ROM_IS_OFFICIAL && ROM_STATUS="OFFICIAL"
 
 ZIP_FILE_SUFFIX="-sign.zip"
@@ -631,7 +631,7 @@ while IFS= read -r f; do
 
     (
         LOG_STEP_IN "- Building $PARTITION.img"
-        if [[ "$PARTITION" == "prism" || "$PARTITION" == "optics" ]]; then
+        if [[ "$PARTITION" == "system" || "$PARTITION" == "prism" || "$PARTITION" == "optics" ]]; then
             FILESYSTEM_TYPE="ext4"
         else
             FILESYSTEM_TYPE="$TARGET_OS_FILE_SYSTEM"
