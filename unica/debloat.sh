@@ -24,6 +24,7 @@
 SYSTEM_DEBLOAT+="
 dpolicy_system
 "
+
 VENDOR_DEBLOAT+="
 etc/dpolicy
 "
@@ -43,59 +44,12 @@ system/priv-app/SsuService
 
 # Recovery restoration script
 VENDOR_DEBLOAT+="
-recovery-from-boot.p
-bin/install-recovery.sh
 etc/init/vendor_flash_recovery.rc
-"
-
-# Live Transcribe
-SYSTEM_DEBLOAT+="
-system/app/LiveTranscribe
-system/etc/sysconfig/feature-a11y-preload.xml
-"
-
-# Language packs
-SYSTEM_DEBLOAT+="$(find "$WORK_DIR/system" -type d -name "*TTSVoice*" | sed "s|$WORK_DIR/system/||g")"
-
-# Samsung Messages
-SYSTEM_DEBLOAT+="
-system/etc/default-permissions/default-permissions-com.samsung.android.messaging.xml
-system/etc/permissions/privapp-permissions-com.samsung.android.messaging.xml
-system/priv-app/SamsungMessages
-"
-
-# Voice Access
-SYSTEM_DEBLOAT+="
-system/app/VoiceAccess
-system/etc/sysconfig/feature-a11y-preload-voacc.xml
-"
-
-# Samsung PROCA certificate DB
-SYSTEM_DEBLOAT+="
-system/etc/proca.db
 "
 
 SYSTEM_EXT_DEBLOAT+="
 framework/org.carconnectivity.android.digitalkey.rangingintent.jar
 framework/org.carconnectivity.android.digitalkey.secureelement.jar
-"
-
-# Samsung Wallet
-SYSTEM_DEBLOAT+="
-system/etc/init/digitalkey_init_ble_tss2.rc
-system/etc/permissions/org.carconnectivity.android.digitalkey.rangingintent.xml
-system/etc/permissions/org.carconnectivity.android.digitalkey.secureelement.xml
-system/etc/permissions/privapp-permissions-com.samsung.android.carkey.xml
-system/etc/permissions/privapp-permissions-com.samsung.android.dkey.xml
-system/etc/permissions/privapp-permissions-com.samsung.android.spayfw.xml
-system/etc/permissions/signature-permissions-com.samsung.android.spay.xml
-system/etc/permissions/signature-permissions-com.samsung.android.spayfw.xml
-system/etc/sysconfig/digitalkey.xml
-system/etc/sysconfig/preinstalled-packages-com.samsung.android.dkey.xml
-system/etc/sysconfig/preinstalled-packages-com.samsung.android.spayfw.xml
-system/priv-app/DigitalKey
-system/priv-app/PaymentFramework
-system/priv-app/SamsungCarKeyFw
 "
 
 # Apps debloat
@@ -106,17 +60,21 @@ app/Gmail2
 app/Maps
 app/YouTube
 overlay/GmsConfigOverlaySearchSelector.apk
+priv-app/AndroidAutoStub
 priv-app/Messages
 priv-app/SearchSelector
 "
 
 SYSTEM_DEBLOAT+="
+system/app/BixbyWakeup
 system/app/CarrierDefaultApp
 system/app/ccinfo
 system/app/ChromeCustomizations
 system/app/Fast
 system/app/FBAppManager_NS
+system/app/HMT
 system/app/KidsHome_Installer
+system/app/LiveTranscribe
 system/app/MAPSAgent
 system/app/MDMApp
 system/app/PlayAutoInstallConfig
@@ -126,54 +84,67 @@ system/app/SilentLog
 system/app/SimAppDialog
 system/app/Traceur
 system/app/UniversalMDMClient
+system/app/VoiceAccess
 system/app/WifiGuider
+system/app/WlanTest
+system/etc/default-permissions/default-permissions-com.samsung.android.messaging.xml
+system/etc/default-permissions/default-permissions-com.sec.android.mimage.avatarstickers.xml
 system/etc/default-permissions/default-permissions-com.sec.spp.push.xml
-system/etc/init/digitalkey_init_ble_tss2.rc
 system/etc/init/samsung_pass_authenticator_service.rc
 system/etc/permissions/authfw.xml
 system/etc/permissions/com.samsung.feature.ipsgeofence.xml
 system/etc/permissions/com.samsung.feature.samsungpositioning.xml
 system/etc/permissions/org.carconnectivity.android.digitalkey.rangingintent.xml
-system/etc/permissions/org.carconnectivity.android.digitalkey.secureelement.xml
 system/etc/permissions/privapp-permissions-com.microsoft.skydrive.xml
 system/etc/permissions/privapp-permissions-com.samsung.android.app.updatecenter.xml
 system/etc/permissions/privapp-permissions-com.samsung.android.authfw.xml
-system/etc/permissions/privapp-permissions-com.samsung.android.carkey.xml
 system/etc/permissions/privapp-permissions-com.samsung.android.dkey.xml
 system/etc/permissions/privapp-permissions-com.samsung.android.ipsgeofence.xml
+system/etc/permissions/privapp-permissions-com.samsung.android.messaging.xml
+system/etc/permissions/privapp-permissions-com.samsung.android.providers.factory.xml
 system/etc/permissions/privapp-permissions-com.samsung.android.samsungpass.xml
 system/etc/permissions/privapp-permissions-com.samsung.android.samsungpositioning.xml
 system/etc/permissions/privapp-permissions-com.samsung.android.spayfw.xml
 system/etc/permissions/privapp-permissions-com.samsung.oda.service.xml
 system/etc/permissions/privapp-permissions-com.sec.android.diagmonagent.xml
+system/etc/permissions/privapp-permissions-com.sec.android.mimage.avatarstickers.xml
 system/etc/permissions/privapp-permissions-com.sec.android.soagent.xml
 system/etc/permissions/privapp-permissions-com.sec.bcservice.xml
+system/etc/permissions/privapp-permissions-com.sec.facatfunction.xml
 system/etc/permissions/privapp-permissions-com.sec.imslogger.xml
 system/etc/permissions/privapp-permissions-com.sec.spp.push.xml
 system/etc/permissions/privapp-permissions-com.skms.android.agent.xml
 system/etc/permissions/privapp-permissions-com.wssyncmldm.xml
 system/etc/permissions/privapp-permissions-meta.xml
+system/etc/permissions/signature-permissions-com.samsung.android.spayfw.xml
+system/etc/permissions/signature-permissions-com.samsung.android.spay.xml
+system/etc/permissions/signature-permissions-com.sec.android.mimage.avatarstickers.xml
 system/etc/PF_TA
-system/etc/sysconfig/digitalkey.xml
+system/etc/proca.db
+system/etc/sysconfig/feature-a11y-preload.xml
+system/etc/sysconfig/feature-a11y-preload-voacc.xml
 system/etc/sysconfig/meta-hiddenapi-package-allowlist.xml
-system/etc/sysconfig/preinstalled-packages-com.samsung.android.dkey.xml
 system/etc/sysconfig/preinstalled-packages-com.samsung.android.spayfw.xml
 system/etc/sysconfig/samsungauthframework.xml
 system/etc/sysconfig/samsungpassapp.xml
 system/etc/sysconfig/samsungpushservice.xml
 system/hidden/SmartTutor
 system/preload/Facebook_stub_preload
+system/preload/Instagram_stub_preload
 system/priv-app/AppUpdateCenter
 system/priv-app/AREmoji
 system/priv-app/AREmojiEditor
 system/priv-app/AuthFramework
+system/priv-app/AvatarEmojiSticker
 system/priv-app/BCService
-system/priv-app/SVoiceIME
-system/priv-app/TalkbackSE
+system/priv-app/Bixby
+system/priv-app/CIDManager
 system/priv-app/CpAgent
 system/priv-app/DiagMonAgent95
 system/priv-app/DigitalKey
 system/priv-app/EnhancedAttestationAgent
+system/priv-app/FacAtFunction
+system/priv-app/FactoryTestProvider
 system/priv-app/FBInstaller_NS
 system/priv-app/FBServices
 system/priv-app/FotaAgent
@@ -184,13 +155,16 @@ system/priv-app/OMCAgent5
 system/priv-app/OneDrive_Samsung_v3
 system/priv-app/PaymentFramework
 system/priv-app/SamsungCarKeyFw
+system/priv-app/SamsungMessages
 system/priv-app/SamsungPass
 system/priv-app/SamsungPositioning
 system/priv-app/SKMSAgent
 system/priv-app/SOAgent76
 system/priv-app/SPPPushClient
 system/priv-app/StickerFaceARAvatar
+system/priv-app/TalkbackSE
 system/priv-app/YourPhone_P1_5
+$(find "$WORK_DIR/system" -type d -name "*TTSVoice*" | sed "s|$WORK_DIR/system/||g")
 "
 
 PRISM_DEBLOAT+="
@@ -211,6 +185,7 @@ if $SOURCE_IS_ESIM_SUPPORTED; then
     if ! $TARGET_IS_ESIM_SUPPORTED; then
         SYSTEM_DEBLOAT+="
         system/etc/permissions/privapp-permissions-com.samsung.android.app.esimkeystring.xml
+        system/etc/permissions/privapp-permissions-com.samsung.euicc.xml
         system/etc/permissions/privapp-permissions-com.samsung.euicc.mep.xml
         system/etc/sysconfig/preinstalled-packages-com.samsung.android.app.esimkeystring.xml
         system/etc/sysconfig/preinstalled-packages-com.samsung.euicc.xml
