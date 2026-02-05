@@ -48,6 +48,56 @@ bin/install-recovery.sh
 etc/init/vendor_flash_recovery.rc
 "
 
+# Live Transcribe
+SYSTEM_DEBLOAT+="
+system/app/LiveTranscribe
+system/etc/sysconfig/feature-a11y-preload.xml
+"
+
+# Language packs
+SYSTEM_DEBLOAT+="$(find "$WORK_DIR/system" -type d -name "*TTSVoice*" | sed "s|$WORK_DIR/system/||g")"
+
+# Samsung Messages
+SYSTEM_DEBLOAT+="
+system/etc/default-permissions/default-permissions-com.samsung.android.messaging.xml
+system/etc/permissions/privapp-permissions-com.samsung.android.messaging.xml
+system/priv-app/SamsungMessages
+"
+
+# Voice Access
+SYSTEM_DEBLOAT+="
+system/app/VoiceAccess
+system/etc/sysconfig/feature-a11y-preload-voacc.xml
+"
+
+# Samsung PROCA certificate DB
+SYSTEM_DEBLOAT+="
+system/etc/proca.db
+"
+
+SYSTEM_EXT_DEBLOAT+="
+framework/org.carconnectivity.android.digitalkey.rangingintent.jar
+framework/org.carconnectivity.android.digitalkey.secureelement.jar
+"
+
+# Samsung Wallet
+SYSTEM_DEBLOAT+="
+system/etc/init/digitalkey_init_ble_tss2.rc
+system/etc/permissions/org.carconnectivity.android.digitalkey.rangingintent.xml
+system/etc/permissions/org.carconnectivity.android.digitalkey.secureelement.xml
+system/etc/permissions/privapp-permissions-com.samsung.android.carkey.xml
+system/etc/permissions/privapp-permissions-com.samsung.android.dkey.xml
+system/etc/permissions/privapp-permissions-com.samsung.android.spayfw.xml
+system/etc/permissions/signature-permissions-com.samsung.android.spay.xml
+system/etc/permissions/signature-permissions-com.samsung.android.spayfw.xml
+system/etc/sysconfig/digitalkey.xml
+system/etc/sysconfig/preinstalled-packages-com.samsung.android.dkey.xml
+system/etc/sysconfig/preinstalled-packages-com.samsung.android.spayfw.xml
+system/priv-app/DigitalKey
+system/priv-app/PaymentFramework
+system/priv-app/SamsungCarKeyFw
+"
+
 # Apps debloat
 PRODUCT_DEBLOAT+="
 app/Chrome64
@@ -72,21 +122,6 @@ system/app/MDMApp
 system/app/PlayAutoInstallConfig
 system/app/Rampart
 system/app/SamsungPassAutofill_v1
-system/app/SamsungTTSVoice_ar_AE_m00
-system/app/SamsungTTSVoice_de_DE_f00
-system/app/SamsungTTSVoice_en_GB_f00
-system/app/SamsungTTSVoice_es_ES_f00
-system/app/SamsungTTSVoice_es_MX_f00
-system/app/SamsungTTSVoice_es_US_f00
-system/app/SamsungTTSVoice_fr_FR_f00
-system/app/SamsungTTSVoice_hi_IN_f00
-system/app/SamsungTTSVoice_id_ID_f00
-system/app/SamsungTTSVoice_it_IT_f00
-system/app/SamsungTTSVoice_pl_PL_f00
-system/app/SamsungTTSVoice_pt_BR_f00
-system/app/SamsungTTSVoice_ru_RU_f00
-system/app/SamsungTTSVoice_th_TH_f00
-system/app/SamsungTTSVoice_vi_VN_f00
 system/app/SilentLog
 system/app/SimAppDialog
 system/app/Traceur
@@ -133,6 +168,8 @@ system/priv-app/AREmoji
 system/priv-app/AREmojiEditor
 system/priv-app/AuthFramework
 system/priv-app/BCService
+system/priv-app/SVoiceIME
+system/priv-app/TalkbackSE
 system/priv-app/CpAgent
 system/priv-app/DiagMonAgent95
 system/priv-app/DigitalKey
