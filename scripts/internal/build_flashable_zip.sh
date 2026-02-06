@@ -631,7 +631,7 @@ while IFS= read -r f; do
 
     (
         LOG_STEP_IN "- Building $PARTITION.img"
-        if [[ "$PARTITION" == "system" || "$PARTITION" == "prism" || "$PARTITION" == "optics" ]]; then
+        if [[ "$PARTITION" == "prism" || "$PARTITION" == "optics" || "$PARTITION" == "system" || "$PARTITION" == "vendor" ]]; then
             FILESYSTEM_TYPE="ext4"
         else
             FILESYSTEM_TYPE="$TARGET_OS_FILE_SYSTEM"
