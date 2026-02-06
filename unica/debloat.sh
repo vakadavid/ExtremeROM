@@ -54,6 +54,8 @@ framework/org.carconnectivity.android.digitalkey.secureelement.jar
 
 # Apps debloat
 PRODUCT_DEBLOAT+="
+app/AssistantShell
+app/BardShell
 app/Chrome64
 app/Duo
 app/Gmail2
@@ -61,6 +63,7 @@ app/Maps
 app/YouTube
 overlay/GmsConfigOverlaySearchSelector.apk
 priv-app/AndroidAutoStub
+priv-app/FamilyLinkParentalControls
 priv-app/Messages
 priv-app/SearchSelector
 "
