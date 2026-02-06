@@ -87,6 +87,8 @@ system/app/Rampart
 system/app/SamsungPassAutofill_v1
 system/app/SilentLog
 system/app/SimAppDialog
+system/app/SmartSwitchAgent
+system/app/SmartSwitchStub
 system/app/Traceur
 system/app/UniversalMDMClient
 system/app/VoiceAccess
