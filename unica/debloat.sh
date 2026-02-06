@@ -131,6 +131,7 @@ system/etc/sysconfig/samsungauthframework.xml
 system/etc/sysconfig/samsungpassapp.xml
 system/etc/sysconfig/samsungpushservice.xml
 system/hidden/SmartTutor
+system/preload
 system/preload/Facebook_stub_preload
 system/priv-app/AppUpdateCenter
 system/priv-app/AREmoji
