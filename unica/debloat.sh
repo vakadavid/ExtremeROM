@@ -66,10 +66,12 @@ priv-app/SearchSelector
 "
 
 SYSTEM_DEBLOAT+="
+system/app/ARCore
 system/app/BixbyWakeup
 system/app/CarrierDefaultApp
 system/app/ccinfo
 system/app/ChromeCustomizations
+system/app/DictDiotekForSec
 system/app/Fast
 system/app/FBAppManager_NS
 system/app/HMT
@@ -130,7 +132,6 @@ system/etc/sysconfig/samsungpassapp.xml
 system/etc/sysconfig/samsungpushservice.xml
 system/hidden/SmartTutor
 system/preload/Facebook_stub_preload
-system/preload/Instagram_stub_preload
 system/priv-app/AppUpdateCenter
 system/priv-app/AREmoji
 system/priv-app/AREmojiEditor
