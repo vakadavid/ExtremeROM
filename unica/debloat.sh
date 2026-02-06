@@ -47,15 +47,8 @@ VENDOR_DEBLOAT+="
 etc/init/vendor_flash_recovery.rc
 "
 
-SYSTEM_EXT_DEBLOAT+="
-framework/org.carconnectivity.android.digitalkey.rangingintent.jar
-framework/org.carconnectivity.android.digitalkey.secureelement.jar
-"
-
 # Apps debloat
 PRODUCT_DEBLOAT+="
-app/AssistantShell
-app/BardShell
 app/Chrome64
 app/Duo
 app/Gmail2
@@ -74,7 +67,6 @@ system/app/BixbyWakeup
 system/app/CarrierDefaultApp
 system/app/ccinfo
 system/app/ChromeCustomizations
-system/app/DictDiotekForSec
 system/app/Fast
 system/app/FBAppManager_NS
 system/app/HMT
@@ -136,7 +128,6 @@ system/etc/sysconfig/samsungauthframework.xml
 system/etc/sysconfig/samsungpassapp.xml
 system/etc/sysconfig/samsungpushservice.xml
 system/hidden/SmartTutor
-system/preload
 system/preload/Facebook_stub_preload
 system/priv-app/AppUpdateCenter
 system/priv-app/AREmoji
