@@ -8,12 +8,9 @@ from pathlib import Path
 
 from stage2_common import (
     default_key_type,
-    is_avb_wrapper_stage,
-    looks_like_stage2_footer,
     normalize_stage,
-    parse_avb_footer,
     parse_stage2_footer,
-    signer_info_offset_from_avb_original,
+    stage2_footer_candidate_sizes,
 )
 
 
@@ -25,13 +22,14 @@ DEFAULT_ROLLBACK_REVISION = 23
 PHASE_IMAGES = {
     "before-avb": [
         ("boot.img", "boot"),
-        ("recovery.img", "recovery"),
         ("dtbo.img", "dtbo"),
+        ("recovery.img", "recovery"),
         ("vendor_boot.img", "vendor_boot"),
         ("init_boot.img", "init_boot"),
     ],
     "after-avb": [
         ("vbmeta.img", "vbmeta"),
+        ("vbmeta_samsung.img", "vbmeta_samsung"),
     ],
 }
 
@@ -63,37 +61,14 @@ def pubkey_paths(keys_dir: Path) -> dict[str, Path]:
     }
 
 
-def footer_candidate_sizes(stage: str, data: bytes) -> list[int]:
-    sizes: list[int] = []
-    stage = normalize_stage(stage)
-
-    if is_avb_wrapper_stage(stage):
-        avb = parse_avb_footer(data)
-        if avb is not None and avb.original_image_size <= len(data):
-            if looks_like_stage2_footer(data, avb.original_image_size):
-                sizes.append(avb.original_image_size)
-            signer_info_offset = signer_info_offset_from_avb_original(data, avb.original_image_size)
-            if signer_info_offset is not None and looks_like_stage2_footer(data, signer_info_offset):
-                sizes.append(signer_info_offset)
-
-    if looks_like_stage2_footer(data, len(data)):
-        sizes.append(len(data))
-
-    deduped: list[int] = []
-    for size in sizes:
-        if size not in deduped:
-            deduped.append(size)
-    return deduped
-
-
 def resolve_key_type(stage: str, data: bytes) -> int:
-    for size in footer_candidate_sizes(stage, data):
+    for size in stage2_footer_candidate_sizes(stage, data):
         return parse_stage2_footer(data, size).key_type
     return default_key_type(stage)
 
 
 def image_is_signable(stage: str, data: bytes) -> bool:
-    return bool(footer_candidate_sizes(stage, data))
+    return bool(stage2_footer_candidate_sizes(stage, data))
 
 
 def sign_image(args: argparse.Namespace, paths: dict[int, Path], pubs: dict[str, Path], image: Path, stage: str) -> bool:
