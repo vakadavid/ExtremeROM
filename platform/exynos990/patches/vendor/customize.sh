@@ -43,6 +43,12 @@ if grep -q -F "(type hal_fkey_service)" "$WORK_DIR/vendor/etc/selinux/vendor_sep
             echo "$rule" >> "$WORK_DIR/vendor/etc/selinux/vendor_sepolicy.cil"
     done
 fi
+FKEYMASTER_TZTS_PROP_RULE="(allow hal_fkey_default vendor_tztsdaemon_prop (file (read getattr map open)))"
+if grep -q -F "(type hal_fkey_default)" "$WORK_DIR/vendor/etc/selinux/vendor_sepolicy.cil" && \
+    grep -q -F "(type vendor_tztsdaemon_prop)" "$WORK_DIR/vendor/etc/selinux/vendor_sepolicy.cil"; then
+    grep -q -F "$FKEYMASTER_TZTS_PROP_RULE" "$WORK_DIR/vendor/etc/selinux/vendor_sepolicy.cil" || \
+        echo "$FKEYMASTER_TZTS_PROP_RULE" >> "$WORK_DIR/vendor/etc/selinux/vendor_sepolicy.cil"
+fi
 
 # WPA Supplicant HAL
 if [[ "$TARGET_CODENAME" != "r8s" ]]; then
