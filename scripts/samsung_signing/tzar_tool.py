@@ -50,6 +50,37 @@ def sha256(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def startup_object_hash(record):
+    return hashlib.sha256(record["path"].encode("utf-8") + record["payload"]).digest()
+
+
+def startup_object_hash_hex(record):
+    return startup_object_hash(record).hex()
+
+
+def startup_hash_table(records):
+    return b"".join(startup_object_hash(record) for record in sorted(records, key=lambda item: item["index"]))
+
+
+def find_userboot_hash_table(data, record_count):
+    marker = b"ub_tzar_walk_cb\x00"
+    marker_offset = data.find(marker)
+    if marker_offset < 0:
+        raise ValueError(
+            "Could not find the userboot TZAR hash marker in tzsw.img. "
+            "Use a decrypted/clear tzsw.img as TARGET_SAMSUNG_DECRYPTED_TZSW_PATH."
+        )
+
+    table_offset = marker_offset + len(marker)
+    table_size = record_count * hashlib.sha256().digest_size
+    if table_offset + table_size > len(data):
+        raise ValueError(
+            f"Userboot TZAR hash table extends past tzsw.img: "
+            f"off=0x{table_offset:X} size=0x{table_size:X} image=0x{len(data):X}"
+        )
+    return table_offset, table_size
+
+
 def repo_root():
     path = Path(__file__).resolve()
     if len(path.parents) >= 3 and path.parents[1].name == "external":
@@ -221,6 +252,7 @@ def parse_startup_tzar(data):
             "payload_sha256": sha256(payload),
             "payload": payload,
         })
+        records[-1]["startup_hash"] = startup_object_hash_hex(records[-1])
         pos = payload_end
     return records
 
@@ -256,6 +288,7 @@ def write_manifest(out_dir, image_info, startup, records):
             "path": record["path"],
             "size": record["size"],
             "sha256": record["payload_sha256"],
+            "startup_hash": record.get("startup_hash") or startup_object_hash_hex(record),
         })
 
     manifest = {
@@ -485,7 +518,45 @@ def info_command(args):
             f"key-index=0x{footer.key_index:X}"
         )
     for record in records:
-        print(f"{record['index']:02d} 0x{record['size']:08X} {record['payload_sha256'][:16]} {record['path']}")
+        print(
+            f"{record['index']:02d} 0x{record['size']:08X} "
+            f"{record['payload_sha256'][:16]} {record['startup_hash'][:16]} {record['path']}"
+        )
+
+
+def patch_tzsw_hashes_command(args):
+    image_info = read_input_image(args.tzar, args.container)
+    records = parse_startup_tzar(image_info["startup"])
+    expected_table = startup_hash_table(records)
+
+    tzsw_path = Path(args.input)
+    tzsw = bytearray(tzsw_path.read_bytes())
+    table_offset, table_size = find_userboot_hash_table(tzsw, len(records))
+    old_table = bytes(tzsw[table_offset:table_offset + table_size])
+
+    changed = []
+    for record in records:
+        start = record["index"] * hashlib.sha256().digest_size
+        end = start + hashlib.sha256().digest_size
+        old_hash = old_table[start:end]
+        new_hash = expected_table[start:end]
+        if old_hash != new_hash:
+            changed.append((record, old_hash, new_hash))
+
+    tzsw[table_offset:table_offset + table_size] = expected_table
+    output = Path(args.output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_bytes(tzsw)
+
+    print(
+        f"Patched TZSW userboot TZAR hash table: "
+        f"off=0x{table_offset:X} size=0x{table_size:X} entries={len(records)} changed={len(changed)}"
+    )
+    for record, old_hash, new_hash in changed:
+        print(
+            f"  {record['index']:02d} {record['path']} "
+            f"{old_hash.hex()[:16]} -> {new_hash.hex()[:16]}"
+        )
 
 
 def parse_int(value):
@@ -555,6 +626,16 @@ def main():
     info.add_argument("-i", "--input", required=True, help="Input tzar.img.lz4, tzar.img, or decompressed TZAR")
     info.add_argument("--container", choices=("auto", "outer-lz4", "wrapped", "startup"), default="auto")
     info.set_defaults(func=info_command)
+
+    patch_tzsw = subparsers.add_parser(
+        "patch-tzsw-hashes",
+        help="Patch the userboot startup.tzar object hash table inside a decrypted/clear tzsw.img",
+    )
+    patch_tzsw.add_argument("-i", "--input", required=True, help="Input decrypted/clear tzsw.img")
+    patch_tzsw.add_argument("-o", "--output", required=True, help="Output patched tzsw.img")
+    patch_tzsw.add_argument("--tzar", required=True, help="Signed or unsigned tzar.img used as the hash source")
+    patch_tzsw.add_argument("--container", choices=("auto", "outer-lz4", "wrapped", "startup"), default="auto")
+    patch_tzsw.set_defaults(func=patch_tzsw_hashes_command)
 
     args = parser.parse_args()
     if args.command == "pack":

@@ -17,6 +17,7 @@ from stage2_common import (
     parse_stage2_footer,
     stage2_footer_candidate_sizes,
 )
+from tzsw_crypt_tool import decrypt_tzsw, encrypt_tzsw, is_clear_tzsw
 
 TOOLS_DIR = Path(__file__).resolve().parent
 REPO_DIR = TOOLS_DIR.parents[1]
@@ -500,18 +501,27 @@ def sign_external_bootloader_images(
         out_dir: Path,
         manifest: Path,
 ) -> None:
+    patch_tzar_hashes = args.ta_root_cert is not None and (work_stock_dir / "tzar.img").is_file()
     for filename, stage, required_if_present in EXTERNAL_BOOTLOADER_TARGETS:
         source = work_stock_dir / filename
+        if filename == "tzsw.img" and args.decrypted_tzsw is not None:
+            source = require_file(args.decrypted_tzsw)
+            append_manifest(manifest, "source_override", f"tzsw.img={source}")
         if not source.is_file():
             append_manifest(manifest, "missing_optional", filename)
             continue
 
         image = out_dir / filename
         shutil.copy2(source, image)
+        if stage == "tzsw" and patch_tzar_hashes:
+            prepare_tzsw_for_tzar_hash_patch(image, manifest)
+            append_manifest(manifest, "prepared_external", "tzsw.img=tzsw:clear-for-tzar-hashes")
+            continue
         if stage == "keystorage":
             patch_keystorage_vbmeta_key(args, image, manifest)
         if stage == "tzar" and args.ta_root_cert is not None:
             patch_tzar_rootcert(args, image, manifest)
+            patch_tzsw_tzar_hashes(args, paths, out_dir / "tzsw.img", image, manifest)
             continue
         signed = sign_stage2(args, paths, image, stage, key_type=None, require_existing_footer=True)
         if not signed and required_if_present:
@@ -553,6 +563,63 @@ def patch_tzar_rootcert(args: argparse.Namespace, image: Path, manifest: Path) -
     append_manifest(manifest, "signed_external", "tzar.img=tzar:ta-rootcert")
 
 
+def prepare_tzsw_for_tzar_hash_patch(image: Path, manifest: Path) -> None:
+    data = image.read_bytes()
+    if is_clear_tzsw(data):
+        append_manifest(manifest, "tzsw_crypto", f"{image.name}=already-clear")
+        return
+
+    clear = decrypt_tzsw(data)
+    if not is_clear_tzsw(clear):
+        raise ValueError(
+            f"{image.name} did not expose userboot after Exynos9830 TZSW decrypt; "
+            "check that the image matches this SoC/firmware generation"
+        )
+    image.write_bytes(clear)
+    append_manifest(manifest, "tzsw_crypto", f"{image.name}=decrypted-for-patch")
+
+
+def recrypt_tzsw_after_hash_patch(args: argparse.Namespace, image: Path, manifest: Path) -> None:
+    data = image.read_bytes()
+    if not is_clear_tzsw(data):
+        raise ValueError(f"{image.name} is not clear at TZSW recrypt time")
+    if not args.recrypt_tzsw:
+        append_manifest(manifest, "tzsw_crypto", f"{image.name}=left-clear")
+        return
+    image.write_bytes(encrypt_tzsw(data))
+    append_manifest(manifest, "tzsw_crypto", f"{image.name}=recrypted-after-patch")
+
+
+def patch_tzsw_tzar_hashes(
+        args: argparse.Namespace,
+        paths: dict[str, Path],
+        tzsw_image: Path,
+        tzar_image: Path,
+        manifest: Path,
+) -> None:
+    require_file(tzsw_image)
+    require_file(tzar_image)
+    run_step(
+        [
+            sys.executable,
+            str(TOOLS_DIR / "tzar_tool.py"),
+            "patch-tzsw-hashes",
+            "-i",
+            str(tzsw_image),
+            "-o",
+            str(tzsw_image),
+            "--tzar",
+            str(tzar_image),
+        ],
+        f"Patching {tzsw_image.name} userboot TZAR hash table from {tzar_image.name}",
+    )
+    recrypt_tzsw_after_hash_patch(args, tzsw_image, manifest)
+    if not sign_stage2(args, paths, tzsw_image, "tzsw", key_type=None, require_existing_footer=True):
+        raise RuntimeError(f"{tzsw_image.name} did not expose a signable Samsung Stage2 footer after TZAR hash patching")
+    append_manifest(manifest, "patched_tzsw_tzar_hashes", str(tzar_image))
+    append_manifest(manifest, "signed_external", "tzsw.img=tzsw:tzar-hashes")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Patch, sign, and package Exynos9830 Samsung bootloader images")
     parser.add_argument("--stock-dir", type=Path, required=True, help="Extracted stock bootloader directory")
@@ -586,8 +653,12 @@ def main() -> None:
     parser.add_argument("--evt", default="11")
     parser.add_argument("--ta-root-cert", type=Path,
                         help="Owned TA root certificate DER. When set, tzar.img rootcert libraries are patched before Stage-2 signing.")
+    parser.add_argument("--decrypted-tzsw", type=Path,
+                        help="Optional tzsw.img override. It may be stock encrypted or already decrypted; encrypted inputs are decrypted before patching.")
+    parser.add_argument("--no-recrypt-tzsw", dest="recrypt_tzsw", action="store_false",
+                        help="Leave tzsw.img decrypted after patching the userboot TZAR hash table. Debug only; normal BL packages should recrypt.")
     parser.add_argument("--no-verify", dest="verify", action="store_false")
-    parser.set_defaults(verify=True, sign_avb=True, update_keystorage_vbmeta_key=True)
+    parser.set_defaults(verify=True, sign_avb=True, update_keystorage_vbmeta_key=True, recrypt_tzsw=True)
     args = parser.parse_args()
 
     if args.rollback < 0 or args.rollback >= 0x81:

@@ -20,3 +20,4 @@ security/avb/
 security/creckerrom_platform.pk8
 security/creckerrom_platform.x509.pem
 *.pyc
+/security/samsung/exynos9830_crecker/ta_root
