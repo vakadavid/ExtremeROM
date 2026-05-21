@@ -58,32 +58,32 @@ jobs:
 
       - name: Build dependencies
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
+          source ./buildenv.sh --official --ext4-images --encrypt --zip --avb ${{ matrix.target }}
           ./scripts/build_dependencies.sh
 
       - name: Download source firmware
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
+          source ./buildenv.sh --official --ext4-images --encrypt --zip --avb ${{ matrix.target }}
           ./scripts/download_fw.sh --force --ignore-target
 
       - name: Extract source firmware
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
+          source ./buildenv.sh --official --ext4-images --encrypt --zip --avb ${{ matrix.target }}
           ./scripts/extract_fw.sh --force --ignore-target
 
       - name: Download target firmware
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
+          source ./buildenv.sh --official --ext4-images --encrypt --zip --avb ${{ matrix.target }}
           ./scripts/download_fw.sh --force --ignore-source
 
       - name: Extract target firmware
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
+          source ./buildenv.sh --official --ext4-images --encrypt --zip --avb ${{ matrix.target }}
           ./scripts/extract_fw.sh --force --ignore-source
 
       - name: Build ROM
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
+          source ./buildenv.sh --official --ext4-images --encrypt --zip --avb ${{ matrix.target }}
           ./scripts/make_rom.sh --force
 
       - name: Upload to GoFile
