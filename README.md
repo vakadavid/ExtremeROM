@@ -70,7 +70,8 @@ The flow is automatic during package creation:
   and is Stage-2 signed again;
 - when `tzar.img` changes, encrypted `tzsw.img` is decrypted, userboot's
   embedded `startup.tzar` object hash table is patched, `tzsw.img` is
-  re-encrypted, and `tzsw.img` is Stage-2 signed again. Set
+  re-encrypted with a refreshed `BiEn` digest, and `tzsw.img` is Stage-2 signed
+  again. Set
   `TARGET_SAMSUNG_DECRYPTED_TZSW_PATH` only when you want to override the stock
   `tzsw.img` source used for that step;
 - `SEC2`, `SEC3`, and `SEC4` TA containers are handled, while non-TA resources

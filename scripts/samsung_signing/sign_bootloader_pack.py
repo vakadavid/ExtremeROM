@@ -17,7 +17,14 @@ from stage2_common import (
     parse_stage2_footer,
     stage2_footer_candidate_sizes,
 )
-from tzsw_crypt_tool import decrypt_tzsw, encrypt_tzsw, is_clear_tzsw
+from tzsw_crypt_tool import (
+    decrypt_tzsw,
+    encrypt_tzsw,
+    is_clear_tzsw,
+    tzsw_stored_digest,
+    update_tzsw_digest,
+    verify_tzsw_digest,
+)
 
 TOOLS_DIR = Path(__file__).resolve().parent
 REPO_DIR = TOOLS_DIR.parents[1]
@@ -566,6 +573,11 @@ def patch_tzar_rootcert(args: argparse.Namespace, image: Path, manifest: Path) -
 def prepare_tzsw_for_tzar_hash_patch(image: Path, manifest: Path) -> None:
     data = image.read_bytes()
     if is_clear_tzsw(data):
+        if not verify_tzsw_digest(data):
+            raise ValueError(
+                f"{image.name} is already clear but its TZSW BiEn digest is invalid; "
+                "use encrypted stock tzsw.img or decrypt it with tzsw_crypt_tool.py"
+            )
         append_manifest(manifest, "tzsw_crypto", f"{image.name}=already-clear")
         return
 
@@ -583,6 +595,9 @@ def recrypt_tzsw_after_hash_patch(args: argparse.Namespace, image: Path, manifes
     data = image.read_bytes()
     if not is_clear_tzsw(data):
         raise ValueError(f"{image.name} is not clear at TZSW recrypt time")
+    data = update_tzsw_digest(data)
+    image.write_bytes(data)
+    append_manifest(manifest, "tzsw_crypto", f"{image.name}=bien-digest:{tzsw_stored_digest(data).hex()}")
     if not args.recrypt_tzsw:
         append_manifest(manifest, "tzsw_crypto", f"{image.name}=left-clear")
         return
