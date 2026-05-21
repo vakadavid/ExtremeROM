@@ -79,6 +79,36 @@ GET_DEFAULT_ODIN_SUPER_IMAGE()
     fi
 }
 
+GET_DEFAULT_SAMSUNG_LK_PATCH_TABLE()
+{
+    local MODEL
+    local PATCH_ID
+
+    MODEL="$(cut -d "/" -f 1 -s <<< "$TARGET_FIRMWARE")"
+    PATCH_ID="${MODEL#SM-}"
+    PATCH_ID="$(tr '[:upper:]' '[:lower:]' <<< "$PATCH_ID")"
+    case "$PATCH_ID" in
+        "g980f")
+            PATCH_ID="g981b"
+            ;;
+        "g985f")
+            PATCH_ID="g986b"
+            ;;
+        "n980f")
+            PATCH_ID="n981b"
+            ;;
+        "n985f")
+            PATCH_ID="n986b"
+            ;;
+    esac
+
+    if [ -n "$PATCH_ID" ]; then
+        echo "$SRC_DIR/security/samsung/patches/lk_${PATCH_ID}_selected_patches.tsv"
+    else
+        echo "$SRC_DIR/security/samsung/patches/lk_985_selected_patches.tsv"
+    fi
+}
+
 GET_DEFAULT_RECOVERY_IMAGE_PATH()
 {
     case "$TARGET_CODENAME" in
@@ -508,7 +538,7 @@ fi
     GET_BUILD_VAR "TARGET_SAMSUNG_SIGNING_KEY_DIR" "$SRC_DIR/security/samsung/exynos9830_crecker"
     GET_BUILD_VAR "TARGET_SAMSUNG_TA_KEY_DIR" "$SRC_DIR/security/samsung/exynos9830_crecker/ta_root"
     GET_BUILD_VAR "TARGET_SAMSUNG_SUPER_REFERENCE_IMAGE" "auto"
-    GET_BUILD_VAR "TARGET_SAMSUNG_LK_PATCH_TABLE" "$SRC_DIR/security/samsung/patches/lk_985_selected_patches.tsv"
+    GET_BUILD_VAR "TARGET_SAMSUNG_LK_PATCH_TABLE" "$(GET_DEFAULT_SAMSUNG_LK_PATCH_TABLE)"
     GET_BUILD_VAR "TARGET_SAMSUNG_SIGNING_ROLLBACK_INDEX" "23"
     GET_BUILD_VAR "TARGET_SAMSUNG_AVBTOOL_PATH" "$SRC_DIR/platform_external_avb-master/avbtool.py"
     GET_BUILD_VAR "TARGET_SAMSUNG_AVB_KEY_PATH" "$(GET_DEFAULT_AVB_KEY_PATH)"

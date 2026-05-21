@@ -21,11 +21,17 @@ from stage2_common import (
 TOOLS_DIR = Path(__file__).resolve().parent
 REPO_DIR = TOOLS_DIR.parents[1]
 DEFAULT_KEYS_DIR = REPO_DIR / "security" / "samsung" / "exynos9830_crecker"
-DEFAULT_PATCH_TABLE = REPO_DIR / "security" / "samsung" / "patches" / "lk_985_selected_patches.tsv"
+DEFAULT_PATCH_DIR = REPO_DIR / "security" / "samsung" / "patches"
 DEFAULT_AVBTOOL = REPO_DIR / "platform_external_avb-master" / "avbtool.py"
 DEFAULT_AVB_KEY = REPO_DIR / "security" / "avb" / "creckerrom_avb_private.pem"
 DEFAULT_ROLLBACK_REVISION = 23
 KEYSTORAGE_VBMETA_KEY_NAME = "creckerrom_vbmeta.avbpubkey"
+LK_PATCH_MODEL_ALIASES = {
+    "g980f": "g981b",
+    "g985f": "g986b",
+    "n980f": "n981b",
+    "n985f": "n986b",
+}
 
 SBOOT_SPLIT_TARGETS = [
     ("epbl.img", "epbl", 0),
@@ -54,6 +60,28 @@ def require_file(path: Path) -> Path:
     if not path.is_file():
         raise FileNotFoundError(path)
     return path
+
+
+def normalize_model_id(model: str) -> str:
+    value = model.strip().split("/", 1)[0].split("_", 1)[0]
+    if value.upper().startswith("SM-"):
+        value = value[3:]
+    if not value:
+        raise ValueError("empty firmware model")
+    value = value.lower()
+    return LK_PATCH_MODEL_ALIASES.get(value, value)
+
+
+def default_patch_table_for_model(model: str) -> Path:
+    return DEFAULT_PATCH_DIR / f"lk_{normalize_model_id(model)}_selected_patches.tsv"
+
+
+def infer_model_from_stock_dir(stock_dir: Path) -> str | None:
+    for part in reversed(stock_dir.parts):
+        candidate = part.split("_", 1)[0]
+        if candidate.upper().startswith("SM-"):
+            return candidate
+    return None
 
 
 def run_step(cmd: list[str], label: str, *, cwd: Path | None = None) -> None:
@@ -532,8 +560,11 @@ def main() -> None:
     parser.add_argument("--out-dir", type=Path, required=True, help="Signed bootloader output directory")
     parser.add_argument("--keys-dir", type=Path, default=DEFAULT_KEYS_DIR,
                         help=f"crecker_* key directory. Default: {DEFAULT_KEYS_DIR}")
-    parser.add_argument("--patch-table", type=Path, default=DEFAULT_PATCH_TABLE,
-                        help=f"LK TSV patch table. Default: {DEFAULT_PATCH_TABLE}")
+    parser.add_argument("--model",
+                        help="Firmware default model used for the LK patch table, for example SM-G986B. "
+                             "Defaults to inferring it from --stock-dir.")
+    parser.add_argument("--patch-table", type=Path,
+                        help=f"LK TSV patch table. Default: {DEFAULT_PATCH_DIR}/lk_<default-model>_selected_patches.tsv")
     parser.add_argument("--avbtool", type=Path, default=DEFAULT_AVBTOOL,
                         help=f"Official avbtool.py path. Default: {DEFAULT_AVBTOOL}")
     parser.add_argument("--avb-key", type=Path, default=DEFAULT_AVB_KEY,
@@ -563,6 +594,12 @@ def main() -> None:
         parser.error("--rollback must be in range 0..0x80")
     if not args.stock_dir.is_dir():
         raise FileNotFoundError(args.stock_dir)
+    patch_model = args.model or infer_model_from_stock_dir(args.stock_dir)
+    patch_model_id = normalize_model_id(patch_model) if patch_model is not None else None
+    if args.patch_table is None:
+        if patch_model_id is None:
+            parser.error("--patch-table or --model is required when --stock-dir does not include an SM-* model")
+        args.patch_table = DEFAULT_PATCH_DIR / f"lk_{patch_model_id}_selected_patches.tsv"
 
     stock_sboot = require_file(args.stock_dir / "sboot.bin")
     paths = key_paths(args.keys_dir)
@@ -586,6 +623,8 @@ def main() -> None:
                 "device_soc=exynos9830",
                 f"rollback_revision={args.rollback}",
                 f"keys_dir={args.keys_dir}",
+                f"firmware_model={patch_model or 'unknown'}",
+                f"lk_patch_model={patch_model_id or 'explicit'}",
                 f"patch_table={args.patch_table}",
                 f"avb_key={args.avb_key}",
                 f"avb_algorithm={args.avb_algorithm}",
