@@ -52,6 +52,25 @@ Any form of contribution, suggestions, bug report or feature request for the pro
 - Countless other small optimizations
 - More that I can't remember right now and will have to be added in the future
 
+# Exynos990 AVB / TEE signing
+When custom AVB and Samsung signing are enabled on Exynos990 targets, the build
+system now also re-signs `/vendor/tee` TA packages and patches `tzar.img` with
+the same owned TA root certificate.
+
+The TA root is generated once under:
+
+```text
+security/samsung/exynos9830_crecker/ta_root
+```
+
+The flow is automatic during package creation:
+
+- before `vendor.img` is built, `vendor/tee` is recursively re-signed;
+- during bootloader signing, `tzar.img` has both `librootcert.so` copies patched
+  and is Stage-2 signed again;
+- `SEC2`, `SEC3`, and `SEC4` TA containers are handled, while non-TA resources
+  are copied unchanged.
+
 # Bugs
 See the <a href="https://github.com/ExtremeXT/ExtremeROM/issues">⚠ Issues</a> tab
 

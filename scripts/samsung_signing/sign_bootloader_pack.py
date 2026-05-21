@@ -18,7 +18,6 @@ from stage2_common import (
     stage2_footer_candidate_sizes,
 )
 
-
 TOOLS_DIR = Path(__file__).resolve().parent
 REPO_DIR = TOOLS_DIR.parents[1]
 DEFAULT_KEYS_DIR = REPO_DIR / "security" / "samsung" / "exynos9830_crecker"
@@ -351,13 +350,13 @@ def verify_stage2(args: argparse.Namespace, paths: dict[str, Path], image: Path,
 
 
 def sign_stage2(
-    args: argparse.Namespace,
-    paths: dict[str, Path],
-    image: Path,
-    stage: str,
-    *,
-    key_type: int | None = None,
-    require_existing_footer: bool,
+        args: argparse.Namespace,
+        paths: dict[str, Path],
+        image: Path,
+        stage: str,
+        *,
+        key_type: int | None = None,
+        require_existing_footer: bool,
 ) -> bool:
     stage = normalize_stage(stage)
     if require_existing_footer and not has_signable_footer(stage, image):
@@ -467,11 +466,11 @@ def sign_split_sboot(args: argparse.Namespace, paths: dict[str, Path], parts_dir
 
 
 def sign_external_bootloader_images(
-    args: argparse.Namespace,
-    paths: dict[str, Path],
-    work_stock_dir: Path,
-    out_dir: Path,
-    manifest: Path,
+        args: argparse.Namespace,
+        paths: dict[str, Path],
+        work_stock_dir: Path,
+        out_dir: Path,
+        manifest: Path,
 ) -> None:
     for filename, stage, required_if_present in EXTERNAL_BOOTLOADER_TARGETS:
         source = work_stock_dir / filename
@@ -483,6 +482,9 @@ def sign_external_bootloader_images(
         shutil.copy2(source, image)
         if stage == "keystorage":
             patch_keystorage_vbmeta_key(args, image, manifest)
+        if stage == "tzar" and args.ta_root_cert is not None:
+            patch_tzar_rootcert(args, image, manifest)
+            continue
         signed = sign_stage2(args, paths, image, stage, key_type=None, require_existing_footer=True)
         if not signed and required_if_present:
             raise RuntimeError(f"{filename} is present but did not expose a signable Samsung Stage2 footer")
@@ -496,17 +498,49 @@ def sign_external_bootloader_images(
         append_manifest(manifest, "copied_external", f"{filename}=passthrough")
 
 
+def patch_tzar_rootcert(args: argparse.Namespace, image: Path, manifest: Path) -> None:
+    require_file(args.ta_root_cert)
+    run_step(
+        [
+            sys.executable,
+            str(TOOLS_DIR / "ta_sign_tool.py"),
+            "patch-tzar",
+            "-i",
+            str(image),
+            "-o",
+            str(image),
+            "--release-cert",
+            str(args.ta_root_cert),
+            "--keys-dir",
+            str(args.keys_dir),
+            "--soc",
+            args.soc,
+            "--rp-cnt",
+            str(args.rollback),
+        ],
+        f"Patching TZAR root certificates and signing {image.name}",
+    )
+    verify_stage2(args, key_paths(args.keys_dir), image, "tzar")
+    append_manifest(manifest, "patched_tzar_rootcert", str(args.ta_root_cert))
+    append_manifest(manifest, "signed_external", "tzar.img=tzar:ta-rootcert")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Patch, sign, and package Exynos9830 Samsung bootloader images")
     parser.add_argument("--stock-dir", type=Path, required=True, help="Extracted stock bootloader directory")
     parser.add_argument("--work-dir", type=Path, required=True, help="Scratch work directory")
     parser.add_argument("--out-dir", type=Path, required=True, help="Signed bootloader output directory")
-    parser.add_argument("--keys-dir", type=Path, default=DEFAULT_KEYS_DIR, help=f"crecker_* key directory. Default: {DEFAULT_KEYS_DIR}")
-    parser.add_argument("--patch-table", type=Path, default=DEFAULT_PATCH_TABLE, help=f"LK TSV patch table. Default: {DEFAULT_PATCH_TABLE}")
-    parser.add_argument("--avbtool", type=Path, default=DEFAULT_AVBTOOL, help=f"Official avbtool.py path. Default: {DEFAULT_AVBTOOL}")
-    parser.add_argument("--avb-key", type=Path, default=DEFAULT_AVB_KEY, help=f"AVB private key for bootloader AVB footers. Default: {DEFAULT_AVB_KEY}")
+    parser.add_argument("--keys-dir", type=Path, default=DEFAULT_KEYS_DIR,
+                        help=f"crecker_* key directory. Default: {DEFAULT_KEYS_DIR}")
+    parser.add_argument("--patch-table", type=Path, default=DEFAULT_PATCH_TABLE,
+                        help=f"LK TSV patch table. Default: {DEFAULT_PATCH_TABLE}")
+    parser.add_argument("--avbtool", type=Path, default=DEFAULT_AVBTOOL,
+                        help=f"Official avbtool.py path. Default: {DEFAULT_AVBTOOL}")
+    parser.add_argument("--avb-key", type=Path, default=DEFAULT_AVB_KEY,
+                        help=f"AVB private key for bootloader AVB footers. Default: {DEFAULT_AVB_KEY}")
     parser.add_argument("--avb-algorithm", default="SHA256_RSA4096")
-    parser.add_argument("--no-avb", dest="sign_avb", action="store_false", help="Do not re-sign AVB footers after Samsung signing")
+    parser.add_argument("--no-avb", dest="sign_avb", action="store_false",
+                        help="Do not re-sign AVB footers after Samsung signing")
     parser.add_argument("--keystorage-vbmeta-key", type=Path,
                         help="Pre-extracted AVB public key blob for the keystorage vbmeta slot. "
                              "Defaults to extracting it from --avb-key with avbtool.")
@@ -519,6 +553,8 @@ def main() -> None:
     parser.add_argument("--machine-id", type=lambda value: int(value, 0), default=0x9830)
     parser.add_argument("--model-id", type=lambda value: int(value, 0), default=0x142)
     parser.add_argument("--evt", default="11")
+    parser.add_argument("--ta-root-cert", type=Path,
+                        help="Owned TA root certificate DER. When set, tzar.img rootcert libraries are patched before Stage-2 signing.")
     parser.add_argument("--no-verify", dest="verify", action="store_false")
     parser.set_defaults(verify=True, sign_avb=True, update_keystorage_vbmeta_key=True)
     args = parser.parse_args()

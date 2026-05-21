@@ -42,6 +42,7 @@ TARGET_BUILD_ODIN_CSC_PACKAGE="${TARGET_BUILD_ODIN_CSC_PACKAGE:-true}"
 TARGET_RECOVERY_IMAGE_PATH="${TARGET_RECOVERY_IMAGE_PATH:-none}"
 TARGET_ROM_ZIP_COMPRESSION_LEVEL="${TARGET_ROM_ZIP_COMPRESSION_LEVEL:-5}"
 TARGET_BROTLI_QUALITY="${TARGET_BROTLI_QUALITY:-4}"
+TARGET_ENABLE_CUSTOM_AVB="${TARGET_ENABLE_CUSTOM_AVB:-false}"
 TARGET_ENABLE_SAMSUNG_SIGNING="${TARGET_ENABLE_SAMSUNG_SIGNING:-false}"
 TARGET_SAMSUNG_SIGN_AP_IMAGES="${TARGET_SAMSUNG_SIGN_AP_IMAGES:-$TARGET_ENABLE_SAMSUNG_SIGNING}"
 TARGET_SAMSUNG_SIGN_SUPER_IMAGES="${TARGET_SAMSUNG_SIGN_SUPER_IMAGES:-$TARGET_SAMSUNG_SIGN_AP_IMAGES}"
@@ -49,6 +50,8 @@ TARGET_SAMSUNG_SIGN_BOOTLOADER="${TARGET_SAMSUNG_SIGN_BOOTLOADER:-$TARGET_ENABLE
 TARGET_SAMSUNG_BUILD_ODIN_BL_PACKAGE="${TARGET_SAMSUNG_BUILD_ODIN_BL_PACKAGE:-$TARGET_SAMSUNG_SIGN_BOOTLOADER}"
 TARGET_SAMSUNG_SIGNING_SOC="${TARGET_SAMSUNG_SIGNING_SOC:-exynos990}"
 TARGET_SAMSUNG_SIGNING_KEY_DIR="${TARGET_SAMSUNG_SIGNING_KEY_DIR:-$SRC_DIR/security/samsung/exynos9830_crecker}"
+TARGET_SAMSUNG_SIGN_TEE_PACKAGES="${TARGET_SAMSUNG_SIGN_TEE_PACKAGES:-$TARGET_ENABLE_SAMSUNG_SIGNING}"
+TARGET_SAMSUNG_TA_KEY_DIR="${TARGET_SAMSUNG_TA_KEY_DIR:-$TARGET_SAMSUNG_SIGNING_KEY_DIR/ta_root}"
 TARGET_SAMSUNG_SIGNING_ROLLBACK_INDEX="${TARGET_SAMSUNG_SIGNING_ROLLBACK_INDEX:-23}"
 TARGET_SAMSUNG_SIGNED_BOOTLOADER_DIR="${TARGET_SAMSUNG_SIGNED_BOOTLOADER_DIR:-$OUT_DIR/target/$TARGET_CODENAME/signed_bootloader}"
 TARGET_SAMSUNG_SUPER_REFERENCE_IMAGE="${TARGET_SAMSUNG_SUPER_REFERENCE_IMAGE:-auto}"
@@ -832,6 +835,43 @@ RUN_SAMSUNG_BOOTLOADER_SIGNING()
     $TARGET_SAMSUNG_SIGN_BOOTLOADER || return 0
 
     "$SRC_DIR/scripts/internal/sign_samsung_bootchain.sh" || exit 1
+}
+
+RUN_SAMSUNG_TEE_PACKAGE_SIGNING()
+{
+    local TEE_DIR="$WORK_DIR/vendor/tee"
+    local SIGNED_TEE_DIR="$OUT_DIR/target/$TARGET_CODENAME/signed_vendor_tee"
+
+    $TARGET_ENABLE_CUSTOM_AVB || return 0
+    $TARGET_ENABLE_SAMSUNG_SIGNING || return 0
+    $TARGET_SAMSUNG_SIGN_TEE_PACKAGES || return 0
+
+    if [ "$TARGET_PLATFORM" != "exynos990" ]; then
+        LOGW "TEE package signing is only enabled for TARGET_PLATFORM=exynos990; skipping $TARGET_PLATFORM"
+        return 0
+    fi
+
+    [ -d "$TEE_DIR" ] || {
+        LOGW "No vendor/tee directory found to sign: $TEE_DIR"
+        return 0
+    }
+
+    if [ ! -f "$TARGET_SAMSUNG_TA_KEY_DIR/ta_root_key.pem" ] || [ ! -f "$TARGET_SAMSUNG_TA_KEY_DIR/ta_root_cert.der" ]; then
+        LOG "- Generating TEE TA root certificate in ${TARGET_SAMSUNG_TA_KEY_DIR//$SRC_DIR\//}"
+        python3 "$SRC_DIR/scripts/samsung_signing/ta_sign_tool.py" gen-root \
+            -o "$TARGET_SAMSUNG_TA_KEY_DIR" || exit 1
+    fi
+
+    rm -rf "$SIGNED_TEE_DIR"
+    python3 "$SRC_DIR/scripts/samsung_signing/ta_sign_tool.py" resign-dir \
+        -i "$TEE_DIR" \
+        -o "$SIGNED_TEE_DIR" \
+        --root-key "$TARGET_SAMSUNG_TA_KEY_DIR/ta_root_key.pem" \
+        --root-cert "$TARGET_SAMSUNG_TA_KEY_DIR/ta_root_cert.der" \
+        --leaf-keys-dir "$TARGET_SAMSUNG_TA_KEY_DIR/leaves" || exit 1
+
+    rm -rf "$TEE_DIR"
+    mv -f "$SIGNED_TEE_DIR" "$TEE_DIR"
 }
 
 BUILD_ODIN_BL_PACKAGE()
@@ -1672,6 +1712,12 @@ mkdir -p "$TMP_DIR/META-INF/com/google/android"
 cp -a "$SRC_DIR/prebuilts/bootable/deprecated-ota/updater" "$TMP_DIR/META-INF/com/google/android/update-binary"
 mkdir -p "$TMP_DIR/scripts"
 cp -a "$SRC_DIR/prebuilts/extras/cleanup.sh" "$TMP_DIR/scripts/cleanup.sh"
+
+if $TARGET_ENABLE_CUSTOM_AVB && $TARGET_ENABLE_SAMSUNG_SIGNING && $TARGET_SAMSUNG_SIGN_TEE_PACKAGES; then
+    LOG_STEP_IN "- Samsung-signing TEE packages"
+    RUN_SAMSUNG_TEE_PACKAGE_SIGNING
+    LOG_STEP_OUT
+fi
 
 LOG_STEP_IN "- Building OS partitions"
 while IFS= read -r f; do
