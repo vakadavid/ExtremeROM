@@ -18,7 +18,7 @@ from cryptography import x509
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec, padding, rsa
-from cryptography.x509.oid import NameOID
+from cryptography.x509.oid import NameOID, ObjectIdentifier
 
 SEC_MAGICS = {b"SEC2", b"SEC3", b"SEC4"}
 SEC3_MAGICS = {b"SEC3", b"SEC4"}
@@ -28,6 +28,9 @@ ROOT_CERT_SYMBOLS = (
     ("RELEASE_ROOT_CERT", "RELEASE_ROOT_CERT_END"),
     ("CHIPSET_COMMON_ROOT_CERT", "CHIPSET_COMMON_ROOT_CERT_END"),
 )
+DEVICE_INFO_OID = ObjectIdentifier("1.3.6.1.4.1.236.5.10.101")
+DEFAULT_MODEL_NAME = "UNOFFICIAL_BUILD_MODEL"
+DEFAULT_DEVICE_IDS = ("ALL",)
 
 
 @dataclass
@@ -43,6 +46,7 @@ class TAPackage:
     signature: bytes
     cert_der: bytes
     sec2_flags: bytes = b""
+    private_extension: bytes = b""
 
     @property
     def payload(self):
@@ -106,6 +110,94 @@ def cert_cn(cert):
     return attrs[0].value if attrs else ""
 
 
+def cert_model(cert):
+    attrs = cert.subject.get_attributes_for_oid(NameOID.DOMAIN_COMPONENT)
+    return attrs[0].value if attrs else ""
+
+
+def der_len(length):
+    if length < 0x80:
+        return bytes([length])
+    raw = length.to_bytes((length.bit_length() + 7) // 8, "big")
+    return bytes([0x80 | len(raw)]) + raw
+
+
+def read_der_len(data, pos):
+    if pos >= len(data):
+        raise ValueError("truncated DER length")
+    first = data[pos]
+    pos += 1
+    if first < 0x80:
+        return first, pos
+    count = first & 0x7F
+    if count == 0 or pos + count > len(data):
+        raise ValueError("invalid DER length")
+    return int.from_bytes(data[pos:pos + count], "big"), pos + count
+
+
+def encode_device_info(device_ids):
+    body = b""
+    for device_id in device_ids:
+        raw = device_id.encode("utf-8")
+        body += b"\x0c" + der_len(len(raw)) + raw
+    return b"\x30" + der_len(len(body)) + body
+
+
+def decode_device_info(raw):
+    if not raw or raw[0] != 0x30:
+        raise ValueError("DeviceInfo extension is not a sequence")
+    length, pos = read_der_len(raw, 1)
+    end = pos + length
+    if end != len(raw):
+        raise ValueError("DeviceInfo extension has trailing data")
+    values = []
+    while pos < end:
+        if raw[pos] != 0x0C:
+            raise ValueError("DeviceInfo entry is not a UTF8String")
+        length, pos = read_der_len(raw, pos + 1)
+        if pos + length > end:
+            raise ValueError("truncated DeviceInfo entry")
+        values.append(raw[pos:pos + length].decode("utf-8", "replace"))
+        pos += length
+    return values
+
+
+def normalize_device_ids(values):
+    device_ids = []
+    for value in values or DEFAULT_DEVICE_IDS:
+        for item in str(value).split(","):
+            item = item.strip()
+            if item:
+                device_ids.append(item)
+    if not device_ids:
+        device_ids = list(DEFAULT_DEVICE_IDS)
+    if "ALL" in device_ids and len(device_ids) != 1:
+        raise ValueError("DeviceInfo ALL cannot be combined with explicit device IDs")
+    if len(device_ids) > 10:
+        raise ValueError("DeviceInfo supports at most 10 device IDs")
+    for device_id in device_ids:
+        if device_id != "ALL" and len(device_id) != 36:
+            raise ValueError(f"DeviceInfo ID '{device_id}' must be 36 characters or ALL")
+    return tuple(device_ids)
+
+
+def cert_device_info_bytes(cert):
+    try:
+        return cert.extensions.get_extension_for_oid(DEVICE_INFO_OID).value.value
+    except x509.ExtensionNotFound:
+        return None
+
+
+def describe_device_info(cert):
+    raw = cert_device_info_bytes(cert)
+    if raw is None:
+        return "<missing>"
+    try:
+        return ",".join(decode_device_info(raw))
+    except ValueError:
+        return f"<invalid:{len(raw)} bytes>"
+
+
 def parse_ta(path):
     path = Path(path)
     data = path.read_bytes()
@@ -134,7 +226,8 @@ def parse_ta(path):
         cert_len = int.from_bytes(trailer[pos:pos + 2], "big")
         pos += 2
         cert_der = trailer[pos:pos + cert_len]
-        if len(cert_der) != cert_len or pos + cert_len != len(trailer):
+        pos += cert_len
+        if len(cert_der) != cert_len:
             raise ValueError(f"{path}: truncated SEC2 certificate")
         return TAPackage(
             path=path,
@@ -148,6 +241,7 @@ def parse_ta(path):
             signature=signature,
             cert_der=cert_der,
             sec2_flags=sec2_flags,
+            private_extension=trailer[pos:],
         )
 
     package_type, root_type = struct.unpack_from(">II", trailer, 0)
@@ -166,6 +260,7 @@ def parse_ta(path):
     cert_len = int.from_bytes(trailer[pos:pos + 2], "big")
     pos += 2
     cert_der = trailer[pos:pos + cert_len]
+    pos += cert_len
     if len(cert_der) != cert_len:
         raise ValueError(f"{path}: truncated certificate")
 
@@ -180,6 +275,7 @@ def parse_ta(path):
         authority=authority_raw.decode("ascii", "replace"),
         signature=signature,
         cert_der=cert_der,
+        private_extension=trailer[pos:],
     )
 
 
@@ -239,6 +335,8 @@ def inspect_command(args):
         print(f"  cert subject:  {cert.subject.rfc4514_string()}")
         print(f"  cert issuer:   {cert.issuer.rfc4514_string()}")
         print(f"  cert key:      {key_desc}")
+        print(f"  cert device:   {describe_device_info(cert)}")
+        print(f"  package tail:  {len(pkg.private_extension)} bytes")
         print(
             f"  signature:     {len(pkg.signature)} bytes, {'OK' if ok else 'FAIL'}{(': ' + reason) if reason else ''}")
         if root_cert:
@@ -298,10 +396,16 @@ def safe_name(text):
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", text).strip("_")
 
 
-def build_leaf(root_key, root_cert, cn, bits=2048):
+def build_leaf(root_key, root_cert, cn, bits=2048, model=DEFAULT_MODEL_NAME, device_ids=DEFAULT_DEVICE_IDS):
     key = rsa.generate_private_key(public_exponent=65537, key_size=bits)
     not_before, not_after = validity_window()
-    subject = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, cn)])
+    device_ids = normalize_device_ids(device_ids)
+    subject = x509.Name(
+        [
+            x509.NameAttribute(NameOID.DOMAIN_COMPONENT, model),
+            x509.NameAttribute(NameOID.COMMON_NAME, cn),
+        ]
+    )
     cert = (
         x509.CertificateBuilder()
         .subject_name(subject)
@@ -327,6 +431,7 @@ def build_leaf(root_key, root_cert, cn, bits=2048):
             ),
             critical=False,
         )
+        .add_extension(x509.UnrecognizedExtension(DEVICE_INFO_OID, encode_device_info(device_ids)), critical=False)
         .sign(root_key, hashes.SHA256())
     )
     return key, cert
@@ -335,7 +440,7 @@ def build_leaf(root_key, root_cert, cn, bits=2048):
 def gen_leaf_command(args):
     root_key = load_private_key(args.root_key)
     root_cert = load_cert(args.root_cert)
-    key, cert = build_leaf(root_key, root_cert, args.cn, args.bits)
+    key, cert = build_leaf(root_key, root_cert, args.cn, args.bits, args.model, args.device_id)
     prefix = Path(args.out_prefix)
     write_private_key(prefix.with_suffix(".key.pem"), key)
     write_cert_pem(prefix.with_suffix(".cert.pem"), cert)
@@ -351,6 +456,19 @@ def validate_leaf(pkg, cert, key):
         raise ValueError("leaf cert public key must be RSA for Exynos990 root_task")
     if cert.public_key().public_numbers() != key.public_key().public_numbers():
         raise ValueError("leaf cert does not match private key")
+
+
+def leaf_regen_reason(pkg, cert, key, model, device_ids):
+    try:
+        validate_leaf(pkg, cert, key)
+    except ValueError as exc:
+        return str(exc)
+    expected_device_info = encode_device_info(normalize_device_ids(device_ids))
+    if cert_model(cert) != model:
+        return f"leaf cert model '{cert_model(cert)}' does not match '{model}'"
+    if cert_device_info_bytes(cert) != expected_device_info:
+        return "leaf cert DeviceInfo private extension is missing or stale"
+    return ""
 
 
 def sign_package(pkg, cert, key, package_type, root_type):
@@ -371,6 +489,7 @@ def sign_package(pkg, cert, key, package_type, root_type):
                 + signature
                 + len(cert_der).to_bytes(2, "big")
                 + cert_der
+                + pkg.private_extension
         )
         return pkg.data[:pkg.trailer_offset] + trailer
 
@@ -380,7 +499,14 @@ def sign_package(pkg, cert, key, package_type, root_type):
     cert_der = cert.public_bytes(serialization.Encoding.DER)
     if len(signature) > 0xFFFF or len(cert_der) > 0xFFFF:
         raise ValueError("signature or certificate is too large for SEC3 trailer")
-    trailer = prefix + len(signature).to_bytes(2, "big") + signature + len(cert_der).to_bytes(2, "big") + cert_der
+    trailer = (
+        prefix
+        + len(signature).to_bytes(2, "big")
+        + signature
+        + len(cert_der).to_bytes(2, "big")
+        + cert_der
+        + pkg.private_extension
+    )
     return pkg.data[:pkg.trailer_offset] + trailer
 
 
@@ -398,6 +524,8 @@ def sign_command(args):
         raise ValueError(f"self-check failed after signing: {reason}")
     print(f"Signed {pkg.path} -> {args.output}")
     print(f"  authority={pkg.authority} package/root={package_type}/{root_type} size=0x{len(output):X}")
+    signed_cert = x509.load_der_x509_certificate(signed.cert_der)
+    print(f"  device_info={describe_device_info(signed_cert)} package_tail={len(signed.private_extension)} bytes")
 
 
 def leaf_paths(keys_dir, authority):
@@ -413,6 +541,7 @@ def resign_dir_command(args):
     keys_dir.mkdir(parents=True, exist_ok=True)
     root_key = load_private_key(args.root_key)
     root_cert = load_cert(args.root_cert)
+    device_ids = normalize_device_ids(args.device_id)
 
     signed = skipped = 0
     for src in sorted(p for p in in_dir.rglob("*") if p.is_file()):
@@ -431,8 +560,14 @@ def resign_dir_command(args):
         if key_path.is_file() and cert_path.is_file():
             leaf_key = load_private_key(key_path)
             leaf_cert = load_cert(cert_path)
+            regen_reason = leaf_regen_reason(pkg, leaf_cert, leaf_key, args.model, device_ids)
+            if regen_reason:
+                leaf_key, leaf_cert = build_leaf(root_key, root_cert, pkg.authority, model=args.model, device_ids=device_ids)
+                write_private_key(key_path, leaf_key)
+                write_cert_der(cert_path, leaf_cert)
+                print(f"regenerated leaf {pkg.authority}: {regen_reason}")
         else:
-            leaf_key, leaf_cert = build_leaf(root_key, root_cert, pkg.authority)
+            leaf_key, leaf_cert = build_leaf(root_key, root_cert, pkg.authority, model=args.model, device_ids=device_ids)
             write_private_key(key_path, leaf_key)
             write_cert_der(cert_path, leaf_cert)
 
@@ -445,7 +580,7 @@ def resign_dir_command(args):
         )
         write_file(dest, output)
         signed += 1
-        print(f"signed {rel}: {pkg.authority}")
+        print(f"signed {rel}: {pkg.authority} device_info={describe_device_info(leaf_cert)} package_tail={len(pkg.private_extension)}")
 
     print(f"Signed {signed} TA packages, skipped/copied {skipped} unsupported files")
 
@@ -650,6 +785,8 @@ def main():
     gen_leaf.add_argument("--cn", required=True)
     gen_leaf.add_argument("-o", "--out-prefix", required=True)
     gen_leaf.add_argument("--bits", type=int, default=2048)
+    gen_leaf.add_argument("--model", default=DEFAULT_MODEL_NAME)
+    gen_leaf.add_argument("--device-id", action="append")
     gen_leaf.set_defaults(func=gen_leaf_command)
 
     sign = sub.add_parser("sign")
@@ -669,6 +806,8 @@ def main():
     resign_dir.add_argument("--leaf-keys-dir", required=True)
     resign_dir.add_argument("--package-type", type=parse_int)
     resign_dir.add_argument("--root-type", type=parse_int, default=DEFAULT_ROOT_TYPE)
+    resign_dir.add_argument("--model", default=DEFAULT_MODEL_NAME)
+    resign_dir.add_argument("--device-id", action="append")
     resign_dir.add_argument("--copy-unsupported", action=argparse.BooleanOptionalAction, default=True)
     resign_dir.set_defaults(func=resign_dir_command)
 
