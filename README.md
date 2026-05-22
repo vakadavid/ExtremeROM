@@ -66,6 +66,8 @@ security/samsung/exynos9830_crecker/ta_root
 The flow is automatic during package creation:
 
 - before `vendor.img` is built, `vendor/tee` is recursively re-signed;
+- generated TA leaf certificates use the exact target firmware model in
+  `DC=<model>` and include Samsung's DeviceInfo private extension with `ALL`;
 - during bootloader signing, `tzar.img` has both `librootcert.so` copies patched
   and is Stage-2 signed again;
 - when `tzar.img` changes, encrypted `tzsw.img` is decrypted, userboot's

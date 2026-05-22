@@ -869,7 +869,8 @@ RUN_SAMSUNG_TEE_PACKAGE_SIGNING()
         -o "$SIGNED_TEE_DIR" \
         --root-key "$TARGET_SAMSUNG_TA_KEY_DIR/ta_root_key.pem" \
         --root-cert "$TARGET_SAMSUNG_TA_KEY_DIR/ta_root_cert.der" \
-        --leaf-keys-dir "$TARGET_SAMSUNG_TA_KEY_DIR/leaves" || exit 1
+        --leaf-keys-dir "$TARGET_SAMSUNG_TA_KEY_DIR/leaves" \
+        --model "$TARGET_FIRMWARE_MODEL" || exit 1
 
     rm -rf "$TEE_DIR"
     mv -f "$SIGNED_TEE_DIR" "$TEE_DIR"
