@@ -244,10 +244,14 @@ if $IMG2SDAT; then
 fi
 if $SAMLOADER; then
     SAMLOADER_CMDS=(
+        "git reset --hard"
+        "git apply \"$SRC_DIR/external/patches/samloader/0001-Update-decryption-keys.patch\""
+        "git apply \"$SRC_DIR/external/patches/samloader/0002-Fix-client-request-params.patch\""
+        "git apply \"$SRC_DIR/external/patches/samloader/0003-Add-timeout-to-version.xml-request.patch\""
         "python3 -m venv \"$TOOLS_DIR/venv\""
         # Some users have pip configured with `global.user=true`, which forces `--user`
         # installs and breaks inside virtualenvs. Force non-user installs here.
-        "source \"$TOOLS_DIR/venv/bin/activate\"; python -m pip install --no-user ."
+        "source \"$TOOLS_DIR/venv/bin/activate\"; pip3 install ."
     )
 
     BUILD "samloader" "$SRC_DIR/external/samloader" "${SAMLOADER_CMDS[@]}"
